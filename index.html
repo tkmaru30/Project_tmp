@@ -13,36 +13,37 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
+            color: #333;
         }
 
         .game-container {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(240, 240, 240, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             text-align: center;
             max-width: 600px;
             width: 90%;
+            border: 1px solid rgba(200, 200, 200, 0.3);
         }
 
         h1 {
             font-size: 2.5rem;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .score-board {
             display: flex;
             justify-content: space-around;
             margin: 2rem 0;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(220, 220, 220, 0.3);
             padding: 1rem;
             border-radius: 10px;
         }
@@ -80,7 +81,7 @@
             align-items: center;
             margin: 2rem 0;
             padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(220, 220, 220, 0.3);
             border-radius: 10px;
         }
 
@@ -112,14 +113,14 @@
         }
 
         .choice-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(240, 240, 240, 0.8);
+            border: 2px solid rgba(180, 180, 180, 0.5);
             border-radius: 15px;
             padding: 1rem;
             font-size: 3rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            color: #fff;
+            color: #333;
             min-width: 100px;
             min-height: 100px;
             display: flex;
@@ -128,10 +129,10 @@
         }
 
         .choice-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(220, 220, 220, 0.9);
             border-color: #ffd700;
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .choice-btn:active {
@@ -177,7 +178,7 @@
         .game-instructions {
             margin-top: 2rem;
             padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(220, 220, 220, 0.3);
             border-radius: 10px;
             font-size: 0.9rem;
             opacity: 0.8;
