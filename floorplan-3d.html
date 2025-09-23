@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 間取り図3D変換アプリ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-5px) rotate(0.5deg); }
+            66% { transform: translateY(5px) rotate(-0.5deg); }
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid rgba(120, 219, 255, 0.3);
+            padding: 2rem;
+            overflow-y: auto;
+            z-index: 10;
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            flex: 1;
+            position: relative;
+            background: #000;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(120, 219, 255, 0.8);
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1, #96ceb4, #ffd700);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+            font-weight: 900;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header p {
+            color: #96ceb4;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .upload-section {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px dashed rgba(120, 219, 255, 0.5);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section:hover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-section.dragover {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: #4ecdc4;
+        }
+
+        .upload-text {
+            margin-bottom: 1rem;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .upload-hint {
+            font-size: 0.8rem;
+            color: #96ceb4;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            border: none;
+            border-radius: 25px;
+            padding: 0.8rem 2rem;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.5);
+        }
+
+        .controls-section {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(120, 219, 255, 0.3);
+        }
+
+        .controls-section h3 {
+            color: #4ecdc4;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #96ceb4;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(120, 219, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(78, 205, 196, 0.4);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(78, 205, 196, 0.4);
+        }
+
+        .value-display {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(45deg, #96ceb4, #4ecdc4);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-section {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(120, 219, 255, 0.3);
+        }
+
+        .info-section h3 {
+            color: #4ecdc4;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            color: #96ceb4;
+        }
+
+        .info-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #three-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(120, 219, 255, 0.3);
+            border-top: 4px solid #4ecdc4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #4ecdc4;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .success-message {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .toggle-sidebar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            background: rgba(15, 15, 35, 0.9);
+            border: 2px solid rgba(120, 219, 255, 0.3);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #4ecdc4;
+            font-size: 1.2rem;
+        }
+
+        .toggle-sidebar:hover {
+            background: rgba(78, 205, 196, 0.2);
+            transform: scale(1.1);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="toggle-sidebar" onclick="toggleSidebar()">
+            ☰
+        </div>
+
+        <div class="sidebar" id="sidebar">
+            <div class="header">
+                <h1>🏠 間取り図3D変換</h1>
+                <p>間取り図をアップロードして3D空間を体験</p>
+            </div>
+
+            <div class="upload-section" id="uploadSection">
+                <span class="upload-icon">📁</span>
+                <div class="upload-text">間取り図をアップロード</div>
+                <div class="upload-hint">PNG, JPG, JPEG形式に対応</div>
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    ファイルを選択
+                </button>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="controls-section">
+                <h3>🎛️ 3Dコントロール</h3>
+                
+                <div class="control-group">
+                    <label for="heightSlider">壁の高さ</label>
+                    <input type="range" id="heightSlider" class="slider" min="1" max="10" value="3" step="0.1">
+                    <div class="value-display" id="heightValue">3.0m</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="extrusionSlider">押し出し強度</label>
+                    <input type="range" id="extrusionSlider" class="slider" min="0" max="2" value="0.5" step="0.1">
+                    <div class="value-display" id="extrusionValue">0.5</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="rotationSlider">回転角度</label>
+                    <input type="range" id="rotationSlider" class="slider" min="0" max="360" value="0" step="1">
+                    <div class="value-display" id="rotationValue">0°</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn primary" onclick="resetView()">リセット</button>
+                    <button class="action-btn secondary" onclick="toggleWireframe()">ワイヤーフレーム</button>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>📊 情報</h3>
+                <div class="info-item">
+                    <span class="info-label">ファイル名:</span>
+                    <span class="info-value" id="fileName">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">画像サイズ:</span>
+                    <span class="info-value" id="imageSize">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">3Dオブジェクト数:</span>
+                    <span class="info-value" id="objectCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="canvas-container">
+                <canvas id="three-canvas"></canvas>
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">3D変換中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let scene, camera, renderer, controls;
+        let currentImage = null;
+        let floorPlanMesh = null;
+        let isWireframe = false;
+        let sidebarOpen = true;
+
+        // 初期化
+        function init() {
+            // Three.jsシーンの初期化
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0a);
+
+            // カメラの設定
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 10);
+
+            // レンダラーの設定
+            const canvas = document.getElementById('three-canvas');
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(window.innerWidth - (sidebarOpen ? 350 : 0), window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            // コントロールの設定
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enableZoom = true;
+            controls.enablePan = true;
+
+            // ライティング
+            setupLighting();
+
+            // イベントリスナーの設定
+            setupEventListeners();
+
+            // アニメーションループ開始
+            animate();
+
+            console.log('🏠 間取り図3D変換アプリが初期化されました');
+        }
+
+        function setupLighting() {
+            // 環境光
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            // 指向性ライト
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+
+            // ポイントライト
+            const pointLight = new THREE.PointLight(0x4ecdc4, 0.5, 100);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
+        }
+
+        function setupEventListeners() {
+            // ファイルアップロード
+            const fileInput = document.getElementById('fileInput');
+            const uploadSection = document.getElementById('uploadSection');
+
+            fileInput.addEventListener('change', handleFileUpload);
+
+            // ドラッグ&ドロップ
+            uploadSection.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadSection.classList.add('dragover');
+            });
+
+            uploadSection.addEventListener('dragleave', () => {
+                uploadSection.classList.remove('dragover');
+            });
+
+            uploadSection.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadSection.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            // スライダーコントロール
+            document.getElementById('heightSlider').addEventListener('input', updateHeight);
+            document.getElementById('extrusionSlider').addEventListener('input', updateExtrusion);
+            document.getElementById('rotationSlider').addEventListener('input', updateRotation);
+
+            // ウィンドウリサイズ
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('画像ファイルを選択してください');
+                return;
+            }
+
+            showLoading(true);
+            hideMessages();
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    currentImage = img;
+                    updateFileInfo(file, img);
+                    convertTo3D(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function convertTo3D(img) {
+            try {
+                // 既存のメッシュを削除
+                if (floorPlanMesh) {
+                    scene.remove(floorPlanMesh);
+                }
+
+                // 画像をテクスチャとして使用
+                const texture = new THREE.Texture(img);
+                texture.needsUpdate = true;
+
+                // 画像のアスペクト比を計算
+                const aspectRatio = img.width / img.height;
+                const width = 10;
+                const height = width / aspectRatio;
+
+                // 平面ジオメトリを作成
+                const geometry = new THREE.PlaneGeometry(width, height);
+
+                // マテリアルを作成
+                const material = new THREE.MeshLambertMaterial({ 
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.9
+                });
+
+                // メッシュを作成
+                floorPlanMesh = new THREE.Mesh(geometry, material);
+                floorPlanMesh.rotation.x = -Math.PI / 2; // 水平に配置
+                floorPlanMesh.position.y = 0;
+                scene.add(floorPlanMesh);
+
+                // 壁を作成
+                createWalls(img, width, height);
+
+                // カメラの位置を調整
+                camera.position.set(0, 8, 12);
+                controls.target.set(0, 0, 0);
+                controls.update();
+
+                showLoading(false);
+                showSuccess('3D変換が完了しました！');
+                updateObjectCount();
+
+            } catch (error) {
+                console.error('3D変換エラー:', error);
+                showError('3D変換中にエラーが発生しました');
+                showLoading(false);
+            }
+        }
+
+        function createWalls(img, width, height) {
+            // 画像をキャンバスに描画してピクセルデータを取得
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // 壁の高さを取得
+            const wallHeight = parseFloat(document.getElementById('heightSlider').value);
+            const extrusion = parseFloat(document.getElementById('extrusionSlider').value);
+
+            // ピクセルをスキャンして壁を作成
+            const wallGeometry = new THREE.BufferGeometry();
+            const vertices = [];
+            const normals = [];
+            const uvs = [];
+
+            for (let y = 0; y < img.height; y += 5) { // 5ピクセルごとにサンプリング
+                for (let x = 0; x < img.width; x += 5) {
+                    const index = (y * img.width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const alpha = data[index + 3];
+
+                    // 白い部分（壁）を検出
+                    if (r > 200 && g > 200 && b > 200 && alpha > 128) {
+                        const worldX = (x / img.width - 0.5) * width;
+                        const worldZ = (y / img.height - 0.5) * height;
+
+                        // 壁のボックスを作成
+                        const boxGeometry = new THREE.BoxGeometry(0.1, wallHeight, 0.1);
+                        const boxMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0x4ecdc4,
+                            transparent: true,
+                            opacity: 0.8
+                        });
+                        const wallBox = new THREE.Mesh(boxGeometry, boxMaterial);
+                        wallBox.position.set(worldX, wallHeight / 2, worldZ);
+                        wallBox.castShadow = true;
+                        wallBox.receiveShadow = true;
+                        scene.add(wallBox);
+                    }
+                }
+            }
+        }
+
+        function updateHeight() {
+            const value = document.getElementById('heightSlider').value;
+            document.getElementById('heightValue').textContent = value + 'm';
+            
+            if (floorPlanMesh) {
+                // 既存の壁を削除して再作成
+                convertTo3D(currentImage);
+            }
+        }
+
+        function updateExtrusion() {
+            const value = document.getElementById('extrusionSlider').value;
+            document.getElementById('extrusionValue').textContent = value;
+            
+            if (floorPlanMesh) {
+                convertTo3D(currentImage);
+            }
+        }
+
+        function updateRotation() {
+            const value = document.getElementById('rotationSlider').value;
+            document.getElementById('rotationValue').textContent = value + '°';
+            
+            if (floorPlanMesh) {
+                floorPlanMesh.rotation.y = (value * Math.PI) / 180;
+            }
+        }
+
+        function resetView() {
+            camera.position.set(0, 8, 12);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+
+        function toggleWireframe() {
+            isWireframe = !isWireframe;
+            
+            if (floorPlanMesh) {
+                floorPlanMesh.material.wireframe = isWireframe;
+            }
+            
+            // シーン内のすべてのメッシュのワイヤーフレームを切り替え
+            scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.wireframe = isWireframe;
+                }
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebarOpen = !sidebarOpen;
+            
+            if (sidebarOpen) {
+                sidebar.classList.remove('collapsed');
+            } else {
+                sidebar.classList.add('collapsed');
+            }
+            
+            onWindowResize();
+        }
+
+        function updateFileInfo(file, img) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('imageSize').textContent = `${img.width} × ${img.height}`;
+        }
+
+        function updateObjectCount() {
+            let count = 0;
+            scene.traverse((child) => {
+                if (child.isMesh) {
+                    count++;
+                }
+            });
+            document.getElementById('objectCount').textContent = count;
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loadingOverlay');
+            if (show) {
+                loading.classList.add('active');
+            } else {
+                loading.classList.remove('active');
+            }
+        }
+
+        function showError(message) {
+            const error = document.getElementById('errorMessage');
+            error.textContent = message;
+            error.style.display = 'block';
+            setTimeout(() => {
+                error.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const success = document.getElementById('successMessage');
+            success.textContent = message;
+            success.style.display = 'block';
+            setTimeout(() => {
+                success.style.display = 'none';
+            }, 3000);
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function onWindowResize() {
+            const width = window.innerWidth - (sidebarOpen ? 350 : 0);
+            const height = window.innerHeight;
+            
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // ページロード時に初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

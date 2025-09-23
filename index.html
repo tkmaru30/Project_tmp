@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 じゃんけんバトル 🔥</title>
+    <title>🏠 間取り図3D変換アプリ</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -437,362 +437,69 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>🔥 じゃんけんバトル 🔥</h1>
+        <h1>🏠 間取り図3D変換アプリ</h1>
+        <p style="margin-bottom: 2rem; color: #96ceb4; font-size: 1.1rem;">
+            間取り図をアップロードしてリアルタイムで3D空間を体験しよう！
+        </p>
+        <div style="text-align: center; margin: 2rem 0;">
+            <a href="floorplan-3d.html" style="
+                display: inline-block;
+                background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+                color: white;
+                text-decoration: none;
+                padding: 1rem 2rem;
+                border-radius: 25px;
+                font-weight: 700;
+                font-size: 1.1rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(78, 205, 196, 0.6)'" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(78, 205, 196, 0.4)'">
+                🚀 3D変換アプリを起動
+            </a>
+        </div>
         
-        <div class="score-board">
-            <div class="score">
-                <h3>プレイヤー</h3>
-                <div class="score-number" id="player-score">0</div>
-                <div class="level-indicator" id="player-level">Lv.1 ルーキー</div>
-                <div class="streak-counter" id="player-streak" style="display: none;">0</div>
-            </div>
-            <div class="score">
-                <h3>AI対戦相手</h3>
-                <div class="score-number" id="computer-score">0</div>
-                <div class="level-indicator">Lv.∞ ボス</div>
-                <div class="streak-counter" id="computer-streak" style="display: none;">0</div>
+        <div class="features" style="margin: 2rem 0; text-align: left;">
+            <h3 style="color: #4ecdc4; margin-bottom: 1rem; text-align: center;">✨ 主な機能</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid rgba(120, 219, 255, 0.3);">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+                    <div style="font-weight: 600; color: #4ecdc4;">画像アップロード</div>
+                    <div style="font-size: 0.9rem; color: #96ceb4;">PNG, JPG, JPEG形式対応</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid rgba(120, 219, 255, 0.3);">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎛️</div>
+                    <div style="font-weight: 600; color: #4ecdc4;">リアルタイム調整</div>
+                    <div style="font-size: 0.9rem; color: #96ceb4;">壁の高さ、回転角度など</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid rgba(120, 219, 255, 0.3);">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎮</div>
+                    <div style="font-weight: 600; color: #4ecdc4;">3D操作</div>
+                    <div style="font-size: 0.9rem; color: #96ceb4;">マウスで自由に視点変更</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid rgba(120, 219, 255, 0.3);">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+                    <div style="font-weight: 600; color: #4ecdc4;">ワイヤーフレーム</div>
+                    <div style="font-size: 0.9rem; color: #96ceb4;">構造を詳細に確認</div>
+                </div>
             </div>
         </div>
 
-        <div class="game-area">
-            <div class="choice-display">
-                <div class="player-choice">
-                    <span class="choice-emoji" id="player-emoji">❓</span>
-                    <div>YOU</div>
-                </div>
-                <div class="vs">VS</div>
-                <div class="computer-choice">
-                    <span class="choice-emoji" id="computer-emoji">❓</span>
-                    <div>AI</div>
-                </div>
-            </div>
-
-            <div class="result" id="result">バトル開始だ！選択せよ 🎯</div>
-
-            <div class="choices">
-                <button class="choice-btn" onclick="playGame('rock')" title="グー">
-                    ✊
-                </button>
-                <button class="choice-btn" onclick="playGame('paper')" title="パー">
-                    ✋
-                </button>
-                <button class="choice-btn" onclick="playGame('scissors')" title="チョキ">
-                    ✌️
-                </button>
-            </div>
-
-            <button class="reset-btn" onclick="resetGame()">
-                🔄 NEW GAME
-            </button>
-
-            <div class="achievements" id="achievements" style="display: none;">
-                <h3>🏆 実績解除！</h3>
-                <div id="achievement-text"></div>
-            </div>
-        </div>
-
-        <div class="game-instructions">
-            <strong>⚔️ バトルルール：</strong><br>
-            ✊ グー、✋ パー、✌️ チョキで最強のAIに挑戦！<br>
-            連勝してレベルアップ＆実績をゲットしよう 🚀
+        <div class="instructions" style="background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(120, 219, 255, 0.3); color: #96ceb4;">
+            <strong style="color: #4ecdc4;">🏠 使い方：</strong><br>
+            1. 間取り図の画像ファイルをアップロード<br>
+            2. 3Dコントロールで壁の高さや回転を調整<br>
+            3. マウスで3D空間を自由に探索<br>
+            4. ワイヤーフレーム表示で構造を確認
         </div>
     </div>
 
     <script>
-        let playerScore = 0;
-        let computerScore = 0;
-        let playerLevel = 1;
-        let playerStreak = 0;
-        let computerStreak = 0;
-        let totalGames = 0;
-        let achievements = [];
-
-        const choices = {
-            rock: { emoji: '✊', name: 'グー' },
-            paper: { emoji: '✋', name: 'パー' },
-            scissors: { emoji: '✌️', name: 'チョキ' }
-        };
-
-        const choiceKeys = Object.keys(choices);
-
-        const levelTitles = {
-            1: 'ルーキー',
-            2: 'ビギナー', 
-            3: 'アマチュア',
-            4: 'セミプロ',
-            5: 'プロ',
-            6: 'エキスパート',
-            7: 'マスター',
-            8: 'グランドマスター',
-            9: 'レジェンド',
-            10: 'ゴッド'
-        };
-
-        const achievementList = [
-            { id: 'first_win', name: '初勝利！', desc: '初めての勝利おめでとう！🎉', condition: () => playerScore >= 1 },
-            { id: 'streak_3', name: '連勝王', desc: '3連勝達成！調子いいね 🔥', condition: () => playerStreak >= 3 },
-            { id: 'streak_5', name: 'ストリークマスター', desc: '5連勝とかヤバくない？😎', condition: () => playerStreak >= 5 },
-            { id: 'level_5', name: 'プロの仲間入り', desc: 'レベル5到達！もうプロじゃん 💪', condition: () => playerLevel >= 5 },
-            { id: 'games_10', name: 'ゲーマー', desc: '10戦達成！ハマってるね 🎮', condition: () => totalGames >= 10 },
-            { id: 'perfect_game', name: 'パーフェクト', desc: '10戦全勝とか神すぎ 👑', condition: () => totalGames >= 10 && computerScore === 0 }
-        ];
-
-        function getComputerChoice() {
-            const randomIndex = Math.floor(Math.random() * choiceKeys.length);
-            return choiceKeys[randomIndex];
-        }
-
-        function determineWinner(playerChoice, computerChoice) {
-            if (playerChoice === computerChoice) {
-                return 'draw';
-            }
-
-            const winConditions = {
-                rock: 'scissors',
-                paper: 'rock',
-                scissors: 'paper'
-            };
-
-            return winConditions[playerChoice] === computerChoice ? 'win' : 'lose';
-        }
-
-        function updateLevel() {
-            const newLevel = Math.min(Math.floor(playerScore / 2) + 1, 10);
-            if (newLevel > playerLevel) {
-                playerLevel = newLevel;
-                showLevelUp();
-            }
-            document.getElementById('player-level').textContent = `Lv.${playerLevel} ${levelTitles[playerLevel]}`;
-        }
-
-        function showLevelUp() {
-            const result = document.getElementById('result');
-            result.innerHTML = `🎊 LEVEL UP! Lv.${playerLevel} ${levelTitles[playerLevel]} 🎊`;
-            result.className = 'result win';
-            setTimeout(() => {
-                vibrateDevice();
-            }, 200);
-        }
-
-        function updateStreaks(result) {
-            if (result === 'win') {
-                playerStreak++;
-                computerStreak = 0;
-            } else if (result === 'lose') {
-                computerStreak++;
-                playerStreak = 0;
-            } else {
-                // draw - streaks continue
-            }
-
-            // Update streak display
-            const playerStreakEl = document.getElementById('player-streak');
-            const computerStreakEl = document.getElementById('computer-streak');
-            
-            if (playerStreak >= 2) {
-                playerStreakEl.textContent = playerStreak;
-                playerStreakEl.style.display = 'flex';
-            } else {
-                playerStreakEl.style.display = 'none';
-            }
-
-            if (computerStreak >= 2) {
-                computerStreakEl.textContent = computerStreak;
-                computerStreakEl.style.display = 'flex';
-            } else {
-                computerStreakEl.style.display = 'none';
-            }
-        }
-
-        function checkAchievements() {
-            achievementList.forEach(achievement => {
-                if (!achievements.includes(achievement.id) && achievement.condition()) {
-                    achievements.push(achievement.id);
-                    showAchievement(achievement);
-                }
-            });
-        }
-
-        function showAchievement(achievement) {
-            const achievementEl = document.getElementById('achievements');
-            const achievementText = document.getElementById('achievement-text');
-            
-            achievementText.innerHTML = `<strong>${achievement.name}</strong><br>${achievement.desc}`;
-            achievementEl.style.display = 'block';
-            
-            setTimeout(() => {
-                achievementEl.style.display = 'none';
-            }, 3000);
-            
-            vibrateDevice();
-        }
-
-        function vibrateDevice() {
-            if (navigator.vibrate) {
-                navigator.vibrate([100, 50, 100]);
-            }
-        }
-
-        function updateDisplay(playerChoice, computerChoice, result) {
-            const playerEmoji = document.getElementById('player-emoji');
-            const computerEmoji = document.getElementById('computer-emoji');
-            const resultElement = document.getElementById('result');
-
-            // バトルアニメーション
-            playerEmoji.classList.add('shake');
-            computerEmoji.classList.add('shake');
-
-            setTimeout(() => {
-                playerEmoji.textContent = choices[playerChoice].emoji;
-                computerEmoji.textContent = choices[computerChoice].emoji;
-                
-                playerEmoji.classList.remove('shake');
-                computerEmoji.classList.remove('shake');
-            }, 800);
-
-            // 結果を表示
-            setTimeout(() => {
-                let resultText = '';
-                let resultClass = '';
-                totalGames++;
-
-                const youngMessages = {
-                    win: [
-                        `🔥 YATTA! ${choices[playerChoice].name} vs ${choices[computerChoice].name} で勝利！`,
-                        `💪 つよつよ！ ${choices[playerChoice].name}で完勝だ！`,
-                        `🎯 ナイス判断！ ${choices[playerChoice].name}が刺さった！`,
-                        `⚡ 神プレイ！ ${choices[computerChoice].name}を粉砕！`
-                    ],
-                    lose: [
-                        `😭 うわあああ... ${choices[computerChoice].name}にやられた`,
-                        `💀 オワタ... ${choices[playerChoice].name}が通用しない`,
-                        `🤡 AIに負けるとかマジ？`,
-                        `😵 ${choices[computerChoice].name}強すぎワロタ`
-                    ],
-                    draw: [
-                        `🤝 おあいこ！ ${choices[playerChoice].name}同士とか`,
-                        `😅 まさかの同じ手とは...`,
-                        `🎭 シンクロ率100%やん`,
-                        `🔄 ドロー！もう一回だ！`
-                    ]
-                };
-
-                switch (result) {
-                    case 'win':
-                        const winMsg = youngMessages.win[Math.floor(Math.random() * youngMessages.win.length)];
-                        resultText = winMsg;
-                        resultClass = 'win';
-                        playerScore++;
-                        updateStreaks('win');
-                        vibrateDevice();
-                        break;
-                    case 'lose':
-                        const loseMsg = youngMessages.lose[Math.floor(Math.random() * youngMessages.lose.length)];
-                        resultText = loseMsg;
-                        resultClass = 'lose';
-                        computerScore++;
-                        updateStreaks('lose');
-                        break;
-                    case 'draw':
-                        const drawMsg = youngMessages.draw[Math.floor(Math.random() * youngMessages.draw.length)];
-                        resultText = drawMsg;
-                        resultClass = 'draw';
-                        updateStreaks('draw');
-                        break;
-                }
-
-                resultElement.innerHTML = resultText;
-                resultElement.className = `result ${resultClass}`;
-
-                // スコア＆レベル更新
-                document.getElementById('player-score').textContent = playerScore;
-                document.getElementById('computer-score').textContent = computerScore;
-                
-                updateLevel();
-                checkAchievements();
-            }, 900);
-        }
-
-        function playGame(playerChoice) {
-            const computerChoice = getComputerChoice();
-            const result = determineWinner(playerChoice, computerChoice);
-            
-            // ボタンエフェクト
-            const clickedBtn = document.querySelector(`[onclick="playGame('${playerChoice}')"]`);
-            clickedBtn.classList.add('selected');
-            setTimeout(() => clickedBtn.classList.remove('selected'), 600);
-            
-            updateDisplay(playerChoice, computerChoice, result);
-
-            // ボタンを一時的に無効化
-            const buttons = document.querySelectorAll('.choice-btn');
-            buttons.forEach(btn => btn.style.pointerEvents = 'none');
-            
-            setTimeout(() => {
-                buttons.forEach(btn => btn.style.pointerEvents = 'auto');
-            }, 1200);
-        }
-
-        function resetGame() {
-            playerScore = 0;
-            computerScore = 0;
-            playerLevel = 1;
-            playerStreak = 0;
-            computerStreak = 0;
-            totalGames = 0;
-            achievements = [];
-            
-            document.getElementById('player-score').textContent = '0';
-            document.getElementById('computer-score').textContent = '0';
-            document.getElementById('player-level').textContent = 'Lv.1 ルーキー';
-            document.getElementById('player-streak').style.display = 'none';
-            document.getElementById('computer-streak').style.display = 'none';
-            document.getElementById('player-emoji').textContent = '❓';
-            document.getElementById('computer-emoji').textContent = '❓';
-            document.getElementById('result').textContent = 'バトル開始だ！選択せよ 🎯';
-            document.getElementById('result').className = 'result';
-            document.getElementById('achievements').style.display = 'none';
-        }
-
-        // キーボードショートカット
-        document.addEventListener('keydown', function(event) {
-            switch(event.key.toLowerCase()) {
-                case 'r':
-                case '1':
-                    playGame('rock');
-                    break;
-                case 'p':
-                case '2':
-                    playGame('paper');
-                    break;
-                case 's':
-                case '3':
-                    playGame('scissors');
-                    break;
-                case 'escape':
-                    resetGame();
-                    break;
-            }
-        });
-
         // ページロード時の初期化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔥 じゃんけんバトル開始！');
-            console.log('⌨️ ショートカット: R/1=グー, P/2=パー, S/3=チョキ, ESC=リセット');
-            
-            // ウェルカムメッセージ
-            const welcomeMessages = [
-                'よろしく！最強のAIに挑戦だ 💪',
-                'バトル準備完了！君の実力を見せてくれ 🎯',
-                'AIとの頂上決戦が今始まる...⚡',
-                'レッツバトル！連勝記録を作ろう 🔥'
-            ];
-            
-            setTimeout(() => {
-                const result = document.getElementById('result');
-                const randomMsg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
-                result.textContent = randomMsg;
-            }, 1000);
+            console.log('🏠 間取り図3D変換アプリ - ランディングページ');
         });
     </script>
 </body>
