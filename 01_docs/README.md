@@ -22,3 +22,11 @@
 ## 📄 05_working-memo/ - 作業メモ管理
 - 日々の作業メモや思考プロセス
 - 技術的なメモや学習記録
+
+## 🏢 06_pmo/ - プロジェクト管理オフィス（PMO）
+- **01_integration-management/**: 統合管理（プロジェクト憲章、管理計画書）
+- **02_scope-management/**: スコープ管理（要件定義、WBS）
+- **05_quality-management/**: 品質管理（品質計画、品質メトリクス）
+- **08_risk-management/**: リスク管理（リスク登録簿、リスク評価）
+- **10_stakeholder-management/**: ステークホルダー管理（登録簿、分析）
+- **project-dashboard/**: プロジェクトダッシュボード
