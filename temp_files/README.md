@@ -55,9 +55,10 @@ workspace/
 │   │   └── README.md
 │   ├── package.json
 │   └── README.md
-├── project_tmp/               # 一時的なプロジェクトファイル
+├── temp_files/                # 一時的なプロジェクトファイル
 │   └── README.md              # このファイル
-├── index.html                 # メインHTMLファイル
+├── 02_apps/
+│   └── janken-game-app.html   # じゃんけんゲームアプリ
 ├── readme.md                  # プロジェクト概要
 ├── README.md                  # メインREADME
 └── PROJECT_MANAGEMENT_README.md  # プロジェクト管理概要
@@ -88,7 +89,7 @@ workspace/
   - 統合管理、スコープ管理、品質管理、リスク管理、ステークホルダー管理
   - プロジェクトダッシュボード
 
-### project_tmp/
+### temp_files/
 一時的なプロジェクトファイルや作業用ファイルを格納するディレクトリです。
 
 ## 🎯 プロジェクト管理の特徴
