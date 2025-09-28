@@ -8,26 +8,51 @@
 workspace/
 ├── 01_docs/                    # ドキュメント管理
 │   ├── 01_tasks/              # タスク管理
+│   │   └── task-template.md
 │   ├── 02_meeting-notes/      # 会議ノート
+│   │   └── meeting-template.md
 │   ├── 03_ideas/              # アイデア管理
+│   │   └── idea-template.md
 │   ├── 04_reports/            # レポート
+│   │   └── report-template.md
 │   ├── 05_working-memo/       # 作業メモ
+│   │   └── memo-template.md
 │   └── README.md
 ├── 02_apps/                    # アプリケーション開発
 │   ├── 09_shared/             # 共有コンポーネント
+│   │   └── README.md
 │   ├── app-template/          # アプリテンプレート
+│   │   └── README.md
 │   └── README.md
 ├── 09_other/                   # その他のファイル
 │   └── README.md
 ├── janken-game/               # じゃんけんゲームプロジェクト
+│   ├── CONTRIBUTING.md        # コントリビューションガイド
 │   ├── docs/                  # プロジェクトドキュメント
+│   │   └── SETUP.md
 │   ├── pmo/                   # プロジェクト管理オフィス
 │   │   ├── 01_integration-management/    # 統合管理
+│   │   │   ├── project-charter/
+│   │   │   │   └── project-charter.md
+│   │   │   └── project-management-plan/
+│   │   │       └── project-management-plan.md
 │   │   ├── 02_scope-management/          # スコープ管理
+│   │   │   ├── requirements/
+│   │   │   │   └── requirements.md
+│   │   │   └── work-breakdown-structure/
+│   │   │       └── wbs.md
 │   │   ├── 05_quality-management/        # 品質管理
+│   │   │   └── quality-plan/
+│   │   │       └── quality-plan.md
 │   │   ├── 08_risk-management/           # リスク管理
+│   │   │   └── risk-register/
+│   │   │       └── risk-register.md
 │   │   ├── 10_stakeholder-management/    # ステークホルダー管理
-│   │   └── project-dashboard/            # プロジェクトダッシュボード
+│   │   │   └── stakeholder-register/
+│   │   │       └── stakeholder-register.md
+│   │   ├── project-dashboard/            # プロジェクトダッシュボード
+│   │   │   └── dashboard.md
+│   │   └── README.md
 │   ├── package.json
 │   └── README.md
 ├── project_tmp/               # 一時的なプロジェクトファイル
