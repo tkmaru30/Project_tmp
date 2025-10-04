@@ -210,26 +210,28 @@ button {
 }
 
 .vertical-line {
-    stroke: #333;
-    stroke-width: 3;
+    stroke: #333 !important;
+    stroke-width: 3 !important;
     cursor: pointer;
+    fill: none !important;
 }
 
 .horizontal-line {
-    stroke: #667eea;
-    stroke-width: 4;
+    stroke: #667eea !important;
+    stroke-width: 4 !important;
     cursor: pointer;
     transition: stroke-width 0.3s ease;
+    fill: none !important;
 }
 
 .horizontal-line:hover {
-    stroke-width: 6;
-    stroke: #764ba2;
+    stroke-width: 6 !important;
+    stroke: #764ba2 !important;
 }
 
 .horizontal-line.drawn {
-    stroke: #28a745;
-    stroke-width: 5;
+    stroke: #28a745 !important;
+    stroke-width: 5 !important;
 }
 
 /* 結果セクション */

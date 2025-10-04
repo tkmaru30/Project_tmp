@@ -108,6 +108,9 @@ class AmidakujiGame {
         
         console.log('コンテナサイズ:', containerWidth, 'x', containerHeight);
         
+        // SVGのviewBoxを設定
+        svg.setAttribute('viewBox', `0 0 ${containerWidth} ${containerHeight}`);
+        
         // 縦線の間隔を計算
         const lineSpacing = containerWidth / (this.playerCount + 1);
         const lineHeight = containerHeight;
@@ -122,6 +125,9 @@ class AmidakujiGame {
             line.setAttribute('y2', lineHeight - 20);
             line.setAttribute('class', 'vertical-line');
             line.setAttribute('data-line-index', i);
+            line.setAttribute('stroke', '#333');
+            line.setAttribute('stroke-width', '3');
+            line.setAttribute('fill', 'none');
             svg.appendChild(line);
             
             this.verticalLines.push({
@@ -137,6 +143,8 @@ class AmidakujiGame {
     generateHorizontalLines(lineSpacing, lineHeight) {
         const svg = document.getElementById('amidakujiSvg');
         const numHorizontalLines = Math.floor(this.playerCount * 1.5); // プレイヤー数の1.5倍の横線
+        
+        console.log('横線を生成中...', numHorizontalLines, '本');
         
         for (let i = 0; i < numHorizontalLines; i++) {
             // ランダムな位置を選択
@@ -154,9 +162,14 @@ class AmidakujiGame {
             line.setAttribute('y2', y);
             line.setAttribute('class', 'horizontal-line');
             line.setAttribute('data-line-id', `h-${startLine}-${i}`);
+            line.setAttribute('stroke', '#667eea');
+            line.setAttribute('stroke-width', '4');
+            line.setAttribute('fill', 'none');
             line.addEventListener('click', () => this.toggleHorizontalLine(line));
             
             svg.appendChild(line);
+            
+            console.log(`横線 ${i + 1}: (${x1}, ${y}) から (${x2}, ${y})`);
             
             this.horizontalLines.push({
                 x1: x1,
@@ -168,6 +181,8 @@ class AmidakujiGame {
                 id: `h-${startLine}-${i}`
             });
         }
+        
+        console.log('横線の生成が完了しました:', this.horizontalLines.length, '本');
     }
     
     toggleHorizontalLine(lineElement) {
