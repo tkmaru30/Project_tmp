@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TO管理アプリ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 TO管理アプリ</h1>
+            <p>タスクとToDoを効率的に管理しましょう</p>
+        </header>
+
+        <div class="task-controls">
+            <div class="input-section">
+                <label for="taskInput">新しいタスク:</label>
+                <input type="text" id="taskInput" placeholder="タスクを入力してください">
+                <select id="prioritySelect">
+                    <option value="high">高</option>
+                    <option value="medium" selected>中</option>
+                    <option value="low">低</option>
+                </select>
+                <button id="addTask">追加</button>
+            </div>
+            
+            <div class="filter-actions">
+                <button id="showAll" class="active">すべて</button>
+                <button id="showPending">未完了</button>
+                <button id="showCompleted">完了済み</button>
+                <button id="clearCompleted">完了済みを削除</button>
+            </div>
+        </div>
+
+        <div class="task-stats">
+            <div class="stat-item">
+                <span class="stat-number" id="totalTasks">0</span>
+                <span class="stat-label">総タスク数</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="pendingTasks">0</span>
+                <span class="stat-label">未完了</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="completedTasks">0</span>
+                <span class="stat-label">完了済み</span>
+            </div>
+        </div>
+
+        <div class="task-list-container">
+            <div class="task-list" id="taskList">
+                <!-- タスクがここに動的に追加されます -->
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>使い方</h3>
+            <ol>
+                <li>タスクを入力して優先度を選択し「追加」をクリック</li>
+                <li>タスクをクリックして完了/未完了を切り替え</li>
+                <li>フィルターボタンで表示を切り替え</li>
+                <li>タスクを右クリックで削除</li>
+                <li>完了済みタスクを一括削除も可能</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
