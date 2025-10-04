@@ -140,9 +140,9 @@
 
 **主要文書**:
 - `risk-register/risk-register.md`
-- `risk-assessment/`
-- `risk-response/`
-- `risk-monitoring/`
+- `risk-assessment/` - リスク評価・分析
+- `risk-response/` - リスク対応計画
+- `risk-monitoring/` - リスク監視・追跡
 
 ### 9. 調達管理（Procurement Management）
 **フォルダ**: `09_procurement-management/`
@@ -170,9 +170,9 @@
 
 **主要文書**:
 - `stakeholder-register/stakeholder-register.md`
-- `stakeholder-analysis/`
-- `engagement-strategy/`
-- `stakeholder-communication/`
+- `stakeholder-analysis/` - ステークホルダー分析
+- `engagement-strategy/` - エンゲージメント戦略
+- `stakeholder-communication/` - ステークホルダーコミュニケーション
 
 ## 📈 プロジェクト管理ダッシュボード
 
