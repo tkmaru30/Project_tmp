@@ -24,9 +24,14 @@
 - 技術的なメモや学習記録
 
 ## 🏢 06_pmo/ - プロジェクト管理オフィス（PMO）
-- **01_integration-management/**: 統合管理（プロジェクト憲章、管理計画書）
-- **02_scope-management/**: スコープ管理（要件定義、WBS）
-- **05_quality-management/**: 品質管理（品質計画、品質メトリクス）
-- **08_risk-management/**: リスク管理（リスク登録簿、リスク評価）
-- **10_stakeholder-management/**: ステークホルダー管理（登録簿、分析）
-- **project-dashboard/**: プロジェクトダッシュボード
+- **01_integration-management/**: 統合管理（プロジェクト憲章、管理計画書、変更管理、プロジェクト終了）
+- **02_scope-management/**: スコープ管理（要件定義、WBS、スコープベースライン、スコープコントロール）
+- **03_schedule-management/**: スケジュール管理（計画、アクティビティリスト、ネットワーク図、進捗追跡）
+- **04_cost-management/**: コスト管理（予算見積もり、コストベースライン、コスト追跡、EVM）
+- **05_quality-management/**: 品質管理（品質計画、品質メトリクス、品質コントロール、品質保証）
+- **06_resource-management/**: リソース管理（計画、チーム構成、リソース配分、パフォーマンス管理）
+- **07_communication-management/**: コミュニケーション管理（計画、議事録、ステータスレポート、情報配布）
+- **08_risk-management/**: リスク管理（リスク登録簿、リスク評価、リスク対応、リスク監視）
+- **09_procurement-management/**: 調達管理（調達計画、ベンダー管理、契約管理、調達コントロール）
+- **10_stakeholder-management/**: ステークホルダー管理（登録簿、分析、エンゲージメント戦略、コミュニケーション）
+- **project-dashboard/**: プロジェクトダッシュボード（概要、進捗、予算、リソース、リスク、品質、KPI）
