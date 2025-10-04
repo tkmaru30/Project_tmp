@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>あみだくじゲーム</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 あみだくじゲーム</h1>
+            <p>線を引いて、あみだくじを作ろう！</p>
+        </header>
+
+        <div class="game-controls">
+            <div class="input-section">
+                <label for="playerCount">参加人数:</label>
+                <input type="number" id="playerCount" min="2" max="10" value="4">
+                <button id="generateGame">ゲーム生成</button>
+            </div>
+            
+            <div class="game-actions">
+                <button id="clearLines">線を消す</button>
+                <button id="resetGame">リセット</button>
+                <button id="showResult">結果を表示</button>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="players-section">
+                <div class="players-top" id="playersTop"></div>
+            </div>
+            
+            <div class="amidakuji-container">
+                <svg id="amidakujiSvg" width="100%" height="100%"></svg>
+            </div>
+            
+            <div class="players-section">
+                <div class="players-bottom" id="playersBottom"></div>
+            </div>
+        </div>
+
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>結果</h3>
+            <div id="resultContent"></div>
+        </div>
+
+        <div class="instructions">
+            <h3>遊び方</h3>
+            <ol>
+                <li>参加人数を設定して「ゲーム生成」をクリック</li>
+                <li>横線をクリックして線を引く</li>
+                <li>「結果を表示」で当たりを確認</li>
+                <li>「リセット」で新しいゲームを開始</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
