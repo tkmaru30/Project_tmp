@@ -1,0 +1,71 @@
+---
+description: "TypeScript/JavaScript、React、CSSのコーディング規約とファイル構成ルール"
+globs: "**/*.{js,jsx,ts,tsx,css,scss,json}"
+alwaysApply: true
+---
+
+# コーディング規約
+
+## 言語別規約
+
+### TypeScript/JavaScript
+- ES6+ 構文を使用
+- 変数名・関数名は英語、コメントは日本語
+- セミコロンは必須
+- インデントは2スペース
+- 関数は const で宣言（アロー関数推奨）
+
+```javascript
+// ✅ 良い例
+const calculateTotal = (items) => {
+  // 合計金額を計算する
+  return items.reduce((sum, item) => sum + item.price, 0);
+};
+```
+
+### React
+- 関数コンポーネントとHooksを優先
+- propsの型定義は必須（TypeScript使用時）
+- コンポーネント名はPascalCase
+- カスタムHooksは use から始める
+
+```typescript
+// ✅ 良い例
+interface UserProps {
+  name: string;
+  age: number;
+}
+
+const UserCard: React.FC<UserProps> = ({ name, age }) => {
+  // ユーザー情報を表示するコンポーネント
+  return (
+    <div className="user-card">
+      <h3>{name}</h3>
+      <p>年齢: {age}</p>
+    </div>
+  );
+};
+```
+
+### CSS
+- CSS Modules または Styled Components を推奨
+- クラス名はケバブケース
+- レスポンシブデザインを考慮
+- 色やサイズは変数で管理
+
+## 共通ルール
+- 変数名・関数名は日本語コメントで説明を追加
+- エラーハンドリングは必須実装
+- 非同期処理は async/await を使用
+- コンソールログは本番環境では削除
+
+## ファイル構成
+```
+src/
+├── components/          # 再利用可能なコンポーネント
+├── pages/              # ページコンポーネント
+├── hooks/              # カスタムHooks
+├── utils/              # ユーティリティ関数
+├── types/              # 型定義
+└── styles/             # スタイルファイル
+```

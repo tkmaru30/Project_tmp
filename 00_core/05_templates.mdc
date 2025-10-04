@@ -1,0 +1,132 @@
+---
+description: "README、文書、設定ファイルの作成時に使用するテンプレート集"
+globs: "**/*"
+alwaysApply: false
+---
+
+# ファイル作成テンプレート
+
+## Webアプリ用 README.md テンプレート
+
+```markdown
+# [アプリ名]
+
+## 概要
+[アプリの簡潔な説明]
+
+## 技術スタック
+- フロントエンド: 
+- バックエンド: 
+- データベース: 
+- その他: 
+
+## セットアップ
+1. 依存関係のインストール
+   ```bash
+   npm install
+   ```
+
+2. 環境変数の設定
+   ```bash
+   cp .env.example .env
+   # .envファイルを編集して必要な値を設定
+   ```
+
+3. データベースの初期化
+   ```bash
+   npm run db:migrate
+   npm run db:seed
+   ```
+
+4. 開発サーバーの起動
+   ```bash
+   npm run dev
+   ```
+
+## 機能
+- [主要機能1]
+- [主要機能2]
+- [主要機能3]
+
+## API仕様
+[APIエンドポイントがある場合]
+
+## デプロイ
+[デプロイ方法の説明]
+
+## 作成日
+[YYYY-MM-DD]
+
+## 作成者
+[作成者名]
+```
+
+## 文書用テンプレート
+
+```markdown
+---
+title: [文書タイトル]
+date: [YYYY-MM-DD]
+author: [作成者名]
+type: [meeting-note/report/book-chapter]
+tags: [タグ1, タグ2, タグ3]
+---
+
+# [文書タイトル]
+
+## 概要
+[文書の概要]
+
+## 内容
+[メイン内容]
+
+## まとめ
+[結論・まとめ]
+
+## 次のアクション
+- [ ] [アクション項目1]
+- [ ] [アクション項目2]
+```
+
+## package.json テンプレート
+
+```json
+{
+  "name": "[app-name]",
+  "version": "1.0.0",
+  "description": "[アプリの説明]",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "next": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0"
+  }
+}
+```
+
+## .env.example テンプレート
+
+```env
+# データベース設定
+DATABASE_URL="postgresql://username:password@localhost:5432/dbname"
+
+# API設定
+API_BASE_URL="http://localhost:3000/api"
+JWT_SECRET="your-secret-key"
+
+# 外部サービス
+STRIPE_SECRET_KEY="sk_test_..."
+SENDGRID_API_KEY="SG..."
+```
