@@ -1,0 +1,37 @@
+# Slack Integration Rules
+
+## Integration Guidelines
+- Use Slack for team communication and notifications
+- Implement proper error handling for Slack API calls
+- Respect rate limits and implement retry logic
+- Use webhooks for real-time notifications
+
+## Bot Development
+- Create dedicated Slack apps for different purposes
+- Use OAuth 2.0 for authentication
+- Implement proper scopes and permissions
+- Handle user interactions gracefully
+
+## Notification Rules
+- Send notifications for critical events only
+- Use appropriate channels for different types of messages
+- Implement user preferences for notifications
+- Avoid spam and excessive messaging
+
+## Security Considerations
+- Validate webhook signatures
+- Use secure token storage
+- Implement proper access controls
+- Monitor for suspicious activity
+
+## Best Practices
+- Use Slack Block Kit for rich messages
+- Implement proper error messages
+- Provide helpful command documentation
+- Test integrations thoroughly before deployment
+
+## Channels Organization
+- Use dedicated channels for different purposes
+- Implement channel naming conventions
+- Archive inactive channels regularly
+- Use threads for related discussions

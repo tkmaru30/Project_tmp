@@ -1,0 +1,31 @@
+# Document Rules
+
+## Documentation Standards
+- Use Markdown (.md) format for all documentation
+- Follow consistent formatting and structure
+- Include table of contents for long documents
+- Use clear, descriptive headings
+
+## File Organization
+- Use descriptive filenames with dates when applicable
+- Organize documents by category and priority
+- Maintain version control for important documents
+- Archive outdated documents appropriately
+
+## Content Guidelines
+- Write clear, concise, and actionable content
+- Use bullet points and numbered lists for clarity
+- Include code examples where relevant
+- Add diagrams for complex processes
+
+## Review Process
+- Peer review for important documents
+- Regular updates and maintenance
+- Version control and change tracking
+- Approval workflow for critical documents
+
+## Templates
+- Use consistent templates for different document types
+- Include standard sections (overview, requirements, etc.)
+- Maintain branding and formatting consistency
+- Provide examples and best practices

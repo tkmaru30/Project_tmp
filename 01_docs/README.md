@@ -1,122 +1,31 @@
-# ワークスペース概要 📁
+# Documentation Directory
 
-このワークスペースは、プロジェクト管理とアプリケーション開発のための統合環境です。効率的な開発フローと包括的なプロジェクト管理機能を提供し、個人からチームまで幅広い用途に対応しています。
+This directory contains all project documentation, notes, and related materials.
 
-## 🎯 主な特徴
+## Structure
 
-- **🎮 インタラクティブなアプリケーション**: じゃんけんゲームなど、ユーザー体験を重視したWebアプリケーション
-- **📋 包括的なプロジェクト管理**: PMO機能による統合的なプロジェクト管理とドキュメント管理
-- **🛠️ 開発環境の統合**: アプリケーション開発からドキュメント管理まで一元化
-- **📱 モダンなUI/UX**: レスポンシブデザインとキーボードショートカット対応
-- **📚 テンプレートベース**: 再利用可能なドキュメントテンプレートとアプリケーションテンプレート
+- `01_tasks/` - Task management and tracking
+- `02_meeting-notes/` - Meeting documentation and minutes
+- `03_ideas/` - Ideas, concepts, and brainstorming notes
+- `04_reports/` - Project reports and status updates
+- `05_working-memo/` - Working notes and temporary documentation
 
-## 📂 ディレクトリ構成
+## Documentation Guidelines
 
-### 🎮 アプリケーション
-- **`janken-game/`** - Webベースのじゃんけんゲーム
-  - シンプルで楽しいゲーム体験
-  - レスポンシブデザイン対応
-  - キーボードショートカット対応
+### File Organization
+- Use descriptive filenames
+- Include dates in filenames when relevant
+- Organize by category and priority
+- Maintain version control
 
-### 📚 ドキュメント管理
-- **`01_docs/`** - 統合ドキュメント管理システム
-  - **01_tasks/**: タスク管理（バックログ、アクティブ、完了）
-  - **02_meeting-notes/**: 会議議事録・ミーティングノート
-  - **03_ideas/**: アイデア管理（受信箱、アーカイブ）
-  - **04_reports/**: レポート・分析資料（市場調査、競合分析）
-  - **05_working-memo/**: 作業メモ・思考プロセス記録
-  - **06_pmo/**: プロジェクト管理オフィス（PMO）
-    - **01_integration-management/**: 統合管理（プロジェクト憲章、管理計画書、変更管理）
-    - **02_scope-management/**: スコープ管理（要件定義、WBS、スコープベースライン）
-    - **03_schedule-management/**: スケジュール管理（計画、アクティビティ、進捗追跡）
-    - **04_cost-management/**: コスト管理（予算見積もり、コスト追跡、EVM）
-    - **05_quality-management/**: 品質管理（品質計画、品質メトリクス、品質保証）
-    - **06_resource-management/**: リソース管理（計画、配分、パフォーマンス管理）
-    - **07_communication-management/**: コミュニケーション管理（計画、議事録、ステータスレポート）
-    - **08_risk-management/**: リスク管理（リスク登録簿、評価、対応）
-    - **09_procurement-management/**: 調達管理（調達計画、ベンダー管理、契約管理）
-    - **10_stakeholder-management/**: ステークホルダー管理（登録簿、分析、エンゲージメント）
-    - **project-dashboard/**: プロジェクトダッシュボード
+### Content Standards
+- Write clear, concise, and actionable content
+- Use consistent formatting and structure
+- Include relevant metadata and tags
+- Regular review and updates
 
-### 🛠️ アプリケーション開発
-- **`02_apps/`** - アプリケーション開発環境
-  - **09_shared/**: 共有コンポーネント・ライブラリ
-  - **app-template/**: アプリケーションテンプレート
-
-### 🔧 その他
-- **`09_other/`** - その他のリソース・ユーティリティ
-
-## 🚀 主要機能
-
-### じゃんけんゲーム
-- **特徴**:
-  - 🎯 直感的な操作（グー、パー、チョキをクリック）
-  - 📊 スコア管理（プレイヤーとコンピューター）
-  - 🎨 モダンなUI（レスポンシブデザイン）
-  - ⌨️ キーボードショートカット対応
-  - 🎬 アニメーション効果
-
-- **遊び方**:
-  1. グー（✊）、パー（✋）、チョキ（✌️）のいずれかをクリック
-  2. コンピューターが自動で選択
-  3. 勝敗が判定されスコアが更新
-
-- **キーボードショートカット**:
-  - `R` または `1`: グー
-  - `P` または `2`: パー
-  - `S` または `3`: チョキ
-  - `ESC`: ゲームリセット
-
-### プロジェクト管理
-- 包括的なPMO機能
-- リスク管理とステークホルダー管理
-- 品質管理とスコープ管理
-- プロジェクトダッシュボード
-
-## 🛠️ 技術仕様
-
-- **フロントエンド**: HTML, CSS, JavaScript（Vanilla JS）
-- **対応ブラウザ**: モダンブラウザ全般
-- **レスポンシブ**: モバイル・タブレット対応
-- **ドキュメント**: Markdown形式
-
-## 📖 使用方法
-
-1. **じゃんけんゲーム**: `janken-game/` ディレクトリの `index.html` をブラウザで開く
-2. **プロジェクト管理**: `01_docs/06_pmo/` ディレクトリでプロジェクト資料を確認
-3. **ドキュメント**: `01_docs/` ディレクトリでテンプレートを使用
-
-## 📁 ファイル構成
-
-```
-/
-├── 01_docs/                           # 統合ドキュメント管理
-│   ├── 01_tasks/                     # タスク管理（バックログ、アクティブ、完了）
-│   ├── 02_meeting-notes/             # 会議議事録・ミーティングノート
-│   ├── 03_ideas/                     # アイデア管理（受信箱、アーカイブ）
-│   ├── 04_reports/                   # レポート・分析資料（市場調査、競合分析）
-│   ├── 05_working-memo/              # 作業メモ・思考プロセス記録
-│   └── 06_pmo/                       # プロジェクト管理オフィス（PMO）
-│       ├── 01_integration-management/ # 統合管理（プロジェクト憲章、管理計画書、変更管理）
-│       ├── 02_scope-management/      # スコープ管理（要件定義、WBS、スコープベースライン）
-│       ├── 03_schedule-management/   # スケジュール管理（計画、アクティビティ、進捗追跡）
-│       ├── 04_cost-management/       # コスト管理（予算見積もり、コスト追跡、EVM）
-│       ├── 05_quality-management/    # 品質管理（品質計画、品質メトリクス、品質保証）
-│       ├── 06_resource-management/   # リソース管理（計画、配分、パフォーマンス管理）
-│       ├── 07_communication-management/ # コミュニケーション管理（計画、議事録、ステータスレポート）
-│       ├── 08_risk-management/       # リスク管理（リスク登録簿、評価、対応）
-│       ├── 09_procurement-management/ # 調達管理（調達計画、ベンダー管理、契約管理）
-│       ├── 10_stakeholder-management/ # ステークホルダー管理（登録簿、分析、エンゲージメント）
-│       └── project-dashboard/        # プロジェクトダッシュボード
-├── 02_apps/                          # アプリケーション開発環境
-│   ├── 09_shared/                    # 共有コンポーネント・ライブラリ
-│   └── app-template/                  # アプリケーションテンプレート
-├── 09_other/                         # その他のリソース・ユーティリティ
-├── janken-game/                      # じゃんけんゲーム
-│   └── docs/                         # ゲーム関連ドキュメント
-└── README.md                         # このファイル
-```
-
----
-
-このワークスペースで効率的なプロジェクト管理とアプリケーション開発をお楽しみください！ 🎉
+### Collaboration
+- Use collaborative editing tools
+- Implement review processes
+- Maintain change history
+- Share knowledge effectively

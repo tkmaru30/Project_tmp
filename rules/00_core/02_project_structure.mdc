@@ -1,0 +1,38 @@
+# Project Structure Rules
+
+## Directory Organization
+
+### Top-Level Structure
+```
+Project_tmp/
+├── rules/           # Project rules and guidelines
+├── 01_docs/         # Documentation and notes
+├── 02_apps/         # Application code
+└── 09_other/        # Miscellaneous files
+```
+
+### Rules Directory (`rules/`)
+- `00_core/` - Core project rules
+- `01_docs/` - Documentation rules
+- `02_apps/` - Application-specific rules
+- `.obsidian/` - Obsidian workspace configuration
+
+### Documentation Directory (`01_docs/`)
+- `01_tasks/` - Task management
+  - `01_backlog/` - Pending tasks
+  - `02_active/` - Current tasks
+  - `03_completed/` - Finished tasks
+  - `09_templates/` - Task templates
+- `02_meeting-notes/` - Meeting documentation
+- `03_ideas/` - Ideas and concepts
+- `04_reports/` - Project reports
+- `05_working-memo/` - Working notes
+
+### Applications Directory (`02_apps/`)
+- Individual app folders with descriptive names
+- `09_shared/` - Shared components and utilities
+
+## Naming Conventions
+- Use descriptive, lowercase names with hyphens
+- Prefix with numbers for ordering (01_, 02_, etc.)
+- Use consistent folder structure across apps
