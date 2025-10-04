@@ -12,7 +12,17 @@ class AmidakujiGame {
     
     initializeEventListeners() {
         document.getElementById('generateGame').addEventListener('click', () => {
-            this.playerCount = parseInt(document.getElementById('playerCount').value);
+            console.log('ゲーム生成ボタンがクリックされました');
+            const inputValue = parseInt(document.getElementById('playerCount').value);
+            
+            if (isNaN(inputValue) || inputValue < 2 || inputValue > 10) {
+                console.error('無効な参加人数:', inputValue);
+                alert('参加人数は2〜10の間で設定してください');
+                return;
+            }
+            
+            this.playerCount = inputValue;
+            console.log('参加人数:', this.playerCount);
             this.generateGame();
         });
         
@@ -30,9 +40,11 @@ class AmidakujiGame {
     }
     
     generateGame() {
+        console.log('ゲーム生成を開始します...');
         this.clearGame();
         this.createPlayers();
         this.createAmidakuji();
+        console.log('ゲーム生成が完了しました');
     }
     
     clearGame() {
@@ -58,6 +70,11 @@ class AmidakujiGame {
         const playersTop = document.getElementById('playersTop');
         const playersBottom = document.getElementById('playersBottom');
         
+        if (!playersTop || !playersBottom) {
+            console.error('プレイヤーコンテナが見つかりません');
+            return;
+        }
+        
         // 上部のプレイヤー（開始点）
         for (let i = 0; i < this.playerCount; i++) {
             const player = document.createElement('div');
@@ -80,8 +97,16 @@ class AmidakujiGame {
     createAmidakuji() {
         const svg = document.getElementById('amidakujiSvg');
         const container = document.querySelector('.amidakuji-container');
+        
+        if (!svg || !container) {
+            console.error('SVGまたはコンテナが見つかりません');
+            return;
+        }
+        
         const containerWidth = container.clientWidth - 40; // パディングを考慮
         const containerHeight = container.clientHeight - 40;
+        
+        console.log('コンテナサイズ:', containerWidth, 'x', containerHeight);
         
         // 縦線の間隔を計算
         const lineSpacing = containerWidth / (this.playerCount + 1);
@@ -241,7 +266,14 @@ class AmidakujiGame {
 
 // ゲームを初期化
 document.addEventListener('DOMContentLoaded', () => {
-    new AmidakujiGame();
+    try {
+        console.log('あみだくじゲームを初期化しています...');
+        window.amidakujiGame = new AmidakujiGame();
+        console.log('あみだくじゲームの初期化が完了しました');
+    } catch (error) {
+        console.error('ゲーム初期化エラー:', error);
+        alert('ゲームの初期化に失敗しました。ページを再読み込みしてください。');
+    }
 });
 
 // ウィンドウリサイズ時の対応
