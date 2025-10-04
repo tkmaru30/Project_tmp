@@ -1,0 +1,41 @@
+# Coding Rules
+
+## General Principles
+- Write clean, readable, and maintainable code
+- Follow consistent naming conventions
+- Document complex logic and functions
+- Write tests for critical functionality
+
+## Language-Specific Rules
+
+### JavaScript/TypeScript
+- Use TypeScript for type safety
+- Follow ESLint configuration
+- Use meaningful variable and function names
+- Prefer const over let, avoid var
+- Use arrow functions for callbacks
+- Implement proper error handling
+
+### Python
+- Follow PEP 8 style guide
+- Use type hints where possible
+- Write docstrings for functions and classes
+- Use virtual environments for dependencies
+
+### CSS/SCSS
+- Use BEM methodology for class naming
+- Organize stylesheets logically
+- Use CSS custom properties for theming
+- Avoid deep nesting (max 3 levels)
+
+## Code Organization
+- Separate concerns (models, views, controllers)
+- Use dependency injection where appropriate
+- Implement proper error boundaries
+- Follow SOLID principles
+
+## Testing
+- Write unit tests for business logic
+- Integration tests for API endpoints
+- End-to-end tests for critical user flows
+- Maintain test coverage above 80%

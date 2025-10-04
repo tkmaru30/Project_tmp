@@ -1,0 +1,95 @@
+# Templates
+
+## Code Templates
+
+### React Component Template
+```typescript
+import React from 'react';
+
+interface ComponentNameProps {
+  // Define props here
+}
+
+const ComponentName: React.FC<ComponentNameProps> = ({ ...props }) => {
+  return (
+    <div>
+      {/* Component content */}
+    </div>
+  );
+};
+
+export default ComponentName;
+```
+
+### API Route Template (Node.js)
+```typescript
+import { Request, Response } from 'express';
+
+export const handler = async (req: Request, res: Response) => {
+  try {
+    // Implementation here
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+```
+
+### Python Function Template
+```python
+def function_name(param1: str, param2: int) -> bool:
+    """
+    Brief description of the function.
+    
+    Args:
+        param1: Description of param1
+        param2: Description of param2
+        
+    Returns:
+        Description of return value
+    """
+    # Implementation here
+    return True
+```
+
+## Documentation Templates
+
+### README Template
+```markdown
+# Project Name
+
+Brief description of the project.
+
+## Installation
+
+```bash
+npm install
+```
+
+## Usage
+
+How to use the project.
+
+## Contributing
+
+Guidelines for contributors.
+
+## License
+
+License information.
+```
+
+### Task Template
+```markdown
+# Task Title
+
+## Description
+Brief description of the task.
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Notes
+Additional notes or context.
+```

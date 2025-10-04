@@ -1,0 +1,42 @@
+# Security Rules
+
+## General Security Principles
+- Never commit sensitive data (passwords, API keys, tokens)
+- Use environment variables for configuration
+- Implement proper authentication and authorization
+- Validate all user inputs
+- Use HTTPS in production
+
+## Data Protection
+- Encrypt sensitive data at rest and in transit
+- Implement proper session management
+- Use secure password hashing (bcrypt, Argon2)
+- Implement rate limiting for API endpoints
+- Log security events for monitoring
+
+## API Security
+- Use JWT tokens for authentication
+- Implement CORS properly
+- Validate request payloads
+- Use HTTPS only in production
+- Implement API versioning
+
+## Frontend Security
+- Sanitize user inputs
+- Use Content Security Policy (CSP)
+- Implement XSS protection
+- Avoid storing sensitive data in localStorage
+- Use secure cookies with proper flags
+
+## Infrastructure Security
+- Keep dependencies updated
+- Use security scanning tools
+- Implement proper backup strategies
+- Monitor for security vulnerabilities
+- Use secure deployment practices
+
+## Compliance
+- Follow GDPR requirements for data handling
+- Implement proper data retention policies
+- Document security procedures
+- Regular security audits and penetration testing
