@@ -1,0 +1,242 @@
+name: WIP Auto Merge Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  statuses: read
+
+env:
+  REQUIRED_REVIEWS: 1
+  AUTO_MERGE_LABELS: "auto-merge,ready-to-merge"
+  WIP_LABELS: "wip,work-in-progress,draft"
+
+jobs:
+  wip-auto-merge:
+    if: |
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.mergeable == true &&
+      (github.event.action == 'opened' || 
+       github.event.action == 'synchronize' || 
+       github.event.action == 'reopened' ||
+       github.event.action == 'labeled' ||
+       github.event.action == 'unlabeled' ||
+       (github.event.action == 'submitted' && github.event.review.state == 'approved') ||
+       (github.event.action == 'completed' && github.event.check_suite.conclusion == 'success'))
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install GitHub CLI
+        run: |
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y
+
+      - name: Get PR information
+        id: pr-info
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "pr_author=$PR_AUTHOR" >> $GITHUB_OUTPUT
+          
+          # プルリクエストのラベルを取得
+          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name' 2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
+          echo "pr_labels=$LABELS" >> $GITHUB_OUTPUT
+          
+          echo "📋 PR #$PR_NUMBER: $PR_TITLE"
+          echo "👤 Author: $PR_AUTHOR"
+          echo "🏷️ Labels: $LABELS"
+
+      - name: Check WIP status and auto-merge conditions
+        id: check-conditions
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          REQUIRED_REVIEWS=${{ env.REQUIRED_REVIEWS }}
+          AUTO_MERGE_LABELS="${{ env.AUTO_MERGE_LABELS }}"
+          WIP_LABELS="${{ env.WIP_LABELS }}"
+          PR_LABELS="${{ steps.pr-info.outputs.pr_labels }}"
+          
+          # デフォルト値を設定
+          HAS_AUTO_MERGE_LABEL=false
+          HAS_WIP_LABEL=false
+          REVIEW_COUNT=0
+          FAILED_CHECKS=0
+          
+          # WIPラベルをチェック
+          echo "🔍 Checking WIP labels..."
+          IFS=',' read -ra WIP_LABEL_ARRAY <<< "$WIP_LABELS"
+          for label in "${WIP_LABEL_ARRAY[@]}"; do
+            if echo "$PR_LABELS" | grep -qi "$label"; then
+              HAS_WIP_LABEL=true
+              echo "⚠️ WIP label found: $label"
+              break
+            fi
+          done
+          
+          if [ "$HAS_WIP_LABEL" = "false" ]; then
+            echo "✅ No WIP labels found"
+          fi
+          
+          # 自動マージラベルをチェック
+          echo "🔍 Checking auto-merge labels..."
+          IFS=',' read -ra AUTO_MERGE_LABEL_ARRAY <<< "$AUTO_MERGE_LABELS"
+          for label in "${AUTO_MERGE_LABEL_ARRAY[@]}"; do
+            if echo "$PR_LABELS" | grep -qi "$label"; then
+              HAS_AUTO_MERGE_LABEL=true
+              echo "✅ Auto-merge label found: $label"
+              break
+            fi
+          done
+          
+          if [ "$HAS_AUTO_MERGE_LABEL" = "false" ]; then
+            echo "❌ No auto-merge labels found"
+          fi
+          
+          # レビュー状況をチェック
+          echo "🔍 Checking reviews..."
+          REVIEWS=$(gh pr view $PR_NUMBER --json reviews --jq '.reviews[] | select(.state == "APPROVED") | .author.login' 2>/dev/null | sort | uniq || echo "")
+          REVIEW_COUNT=$(echo "$REVIEWS" | wc -l)
+          echo "📊 Reviews: $REVIEW_COUNT/$REQUIRED_REVIEWS"
+          echo "Approved by: $REVIEWS"
+          
+          # チェックステータスを確認
+          echo "🔍 Checking status checks..."
+          CHECKS=$(gh pr checks $PR_NUMBER --json status,conclusion --jq '.[] | select(.status == "completed") | .conclusion' 2>/dev/null || echo "")
+          FAILED_CHECKS=$(echo "$CHECKS" | grep -v "success" | wc -l)
+          echo "🔍 Failed checks: $FAILED_CHECKS"
+          
+          # 結果を出力
+          echo "has_auto_merge_label=$HAS_AUTO_MERGE_LABEL" >> $GITHUB_OUTPUT
+          echo "has_wip_label=$HAS_WIP_LABEL" >> $GITHUB_OUTPUT
+          echo "review_count=$REVIEW_COUNT" >> $GITHUB_OUTPUT
+          echo "failed_checks=$FAILED_CHECKS" >> $GITHUB_OUTPUT
+          echo "approved_reviewers=$REVIEWS" >> $GITHUB_OUTPUT
+          
+          # 条件を満たしているかチェック
+          if [ "$HAS_AUTO_MERGE_LABEL" = "true" ] && 
+             [ "$REVIEW_COUNT" -ge "$REQUIRED_REVIEWS" ] && 
+             [ "$FAILED_CHECKS" -eq 0 ]; then
+            echo "can_merge=true" >> $GITHUB_OUTPUT
+            echo "✅ All conditions met for auto-merge"
+          else
+            echo "can_merge=false" >> $GITHUB_OUTPUT
+            echo "❌ Conditions not met for auto-merge"
+          fi
+          
+          # WIPラベルを削除する条件をチェック
+          if [ "$HAS_WIP_LABEL" = "true" ] && 
+             [ "$HAS_AUTO_MERGE_LABEL" = "true" ] && 
+             [ "$REVIEW_COUNT" -ge "$REQUIRED_REVIEWS" ] && 
+             [ "$FAILED_CHECKS" -eq 0 ]; then
+            echo "should_remove_wip=true" >> $GITHUB_OUTPUT
+            echo "✅ Should remove WIP label and proceed with merge"
+          else
+            echo "should_remove_wip=false" >> $GITHUB_OUTPUT
+            echo "❌ Should not remove WIP label yet"
+          fi
+
+      - name: Remove WIP labels
+        if: steps.check-conditions.outputs.should_remove_wip == 'true'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          WIP_LABELS="${{ env.WIP_LABELS }}"
+          
+          echo "🏷️ Removing WIP labels from PR #$PR_NUMBER"
+          
+          IFS=',' read -ra WIP_LABEL_ARRAY <<< "$WIP_LABELS"
+          for label in "${WIP_LABEL_ARRAY[@]}"; do
+            if gh pr view $PR_NUMBER --json labels --jq '.labels[].name' | grep -qi "$label"; then
+              echo "Removing label: $label"
+              gh pr edit $PR_NUMBER --remove-label "$label" || echo "Failed to remove label: $label"
+            fi
+          done
+          
+          echo "✅ WIP labels removed successfully"
+
+      - name: Wait for checks to complete
+        if: steps.check-conditions.outputs.can_merge == 'true'
+        run: |
+          echo "⏳ Waiting for all checks to complete..."
+          gh pr checks ${{ steps.pr-info.outputs.pr_number }} --watch --exit-status || echo "Some checks may have failed, but continuing..."
+
+      - name: Auto merge PR
+        if: steps.check-conditions.outputs.can_merge == 'true'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          
+          echo "🚀 Auto-merging PR #$PR_NUMBER"
+          echo "Title: ${{ steps.pr-info.outputs.pr_title }}"
+          echo "Author: ${{ steps.pr-info.outputs.pr_author }}"
+          echo "Approved by: ${{ steps.check-conditions.outputs.approved_reviewers }}"
+          
+          # プルリクエストをマージ
+          gh pr merge $PR_NUMBER --squash --delete-branch --subject "Auto-merge: ${{ steps.pr-info.outputs.pr_title }}" || {
+            echo "❌ Failed to merge PR #$PR_NUMBER"
+            exit 1
+          }
+          
+          echo "✅ Successfully merged PR #$PR_NUMBER"
+
+      - name: Comment on PR with WIP status
+        if: steps.check-conditions.outputs.has_wip_label == 'true' && steps.check-conditions.outputs.can_merge == 'false'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          
+          # WIP状態でのコメント
+          COMMENT="🤖 **WIP Auto-merge check**\n\n"
+          COMMENT+="**Current status:**\n"
+          COMMENT+="- WIP label: ✅ Found\n"
+          COMMENT+="- Auto-merge label: ${{ steps.check-conditions.outputs.has_auto_merge_label }}\n"
+          COMMENT+="- Reviews: ${{ steps.check-conditions.outputs.review_count }}/${{ env.REQUIRED_REVIEWS }}\n"
+          COMMENT+="- Failed checks: ${{ steps.check-conditions.outputs.failed_checks }}\n\n"
+          COMMENT+="**To complete auto-merge:**\n"
+          COMMENT+="1. Add \`auto-merge\` or \`ready-to-merge\` label\n"
+          COMMENT+="2. Ensure all required reviews are approved\n"
+          COMMENT+="3. Make sure all checks pass\n\n"
+          COMMENT+="Once all conditions are met, WIP labels will be automatically removed and the PR will be merged! 🚀"
+          
+          gh pr comment $PR_NUMBER --body "$COMMENT" || echo "Failed to add comment"
+
+      - name: Comment on PR without WIP status
+        if: steps.check-conditions.outputs.has_wip_label == 'false' && steps.check-conditions.outputs.can_merge == 'false'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          
+          # 通常の自動マージチェックのコメント
+          COMMENT="🤖 **Auto-merge check**\n\n"
+          COMMENT+="**Current status:**\n"
+          COMMENT+="- Auto-merge label: ${{ steps.check-conditions.outputs.has_auto_merge_label }}\n"
+          COMMENT+="- Reviews: ${{ steps.check-conditions.outputs.review_count }}/${{ env.REQUIRED_REVIEWS }}\n"
+          COMMENT+="- Failed checks: ${{ steps.check-conditions.outputs.failed_checks }}\n\n"
+          COMMENT+="**To enable auto-merge:**\n"
+          COMMENT+="1. Add \`auto-merge\` or \`ready-to-merge\` label\n"
+          COMMENT+="2. Ensure all required reviews are approved\n"
+          COMMENT+="3. Make sure all checks pass\n"
+          
+          gh pr comment $PR_NUMBER --body "$COMMENT" || echo "Failed to add comment"
+
+      - name: Notify on merge
+        if: steps.check-conditions.outputs.can_merge == 'true'
+        run: |
+          echo "🎉 PR #${{ steps.pr-info.outputs.pr_number }} has been automatically merged!"
+          echo "WIP status was automatically removed and the PR was merged successfully! 🚀"
