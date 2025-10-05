@@ -255,7 +255,8 @@ Slackから自然言語で指示するだけで、タスク管理・アイデア
 │   ├── 📄 05_working-memo/    # 作業メモ管理
 │   └── 📚 06_books/           # 本・執筆物
 ├── 📁 02_apps/                # Webアプリケーション管理
-│   └── 01_janken-game/       # じゃんけんゲーム（現在利用可能）
+│   ├── 01_janken-game/       # じゃんけんゲーム（現在利用可能）
+│   └── 02_amidakuji-game/    # あみだくじゲーム（現在利用可能）
 └── 📁 09_other/               # その他のファイル・Slack連携
     └── slack-integration/     # Slack連携詳細
 ```
@@ -357,6 +358,7 @@ Slackから自然言語で指示するだけで、タスク管理・アイデア
 - [📁 01_docs/README.md](./01_docs/README.md) - 文書管理システム詳細
 - [📁 02_apps/README.md](./02_apps/README.md) - Webアプリ開発ガイド
 - [📁 02_apps/01_janken-game/README.md](./02_apps/01_janken-game/README.md) - じゃんけんゲーム詳細
+- [📁 02_apps/02_amidakuji-game/README.md](./02_apps/02_amidakuji-game/README.md) - あみだくじゲーム詳細
 - [📁 09_other/slack-integration/README.md](./09_other/slack-integration/README.md) - Slack連携詳細
 
 ## 🆘 サポート & トラブルシューティング
@@ -381,7 +383,7 @@ Slackから自然言語で指示するだけで、タスク管理・アイデア
 
 - **📁 文書管理**: 完全にセットアップ済み（タスク・アイデア・議事録・メモ・レポート）
 - **💡 アイデア管理**: 受信箱に8つのビジネスアイデアが保存済み
-- **🎮 Webアプリ**: じゃんけんゲームが利用可能（HTML/CSS/JS）
+- **🎮 Webアプリ**: じゃんけんゲーム・あみだくじゲームが利用可能（HTML/CSS/JS）
 - **⚙️ 開発環境**: Cursorルール設定が完全に構成済み
 - **🔗 Slack連携**: 自然言語での操作が可能
 
