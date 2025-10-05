@@ -130,3 +130,80 @@ JWT_SECRET="your-secret-key"
 STRIPE_SECRET_KEY="sk_test_..."
 SENDGRID_API_KEY="SG..."
 ```
+
+## GitHub Actions ワークフローテンプレート
+
+### 基本的な自動マージワークフロー
+
+```yaml
+name: Auto Merge PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  auto-merge:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Auto Merge
+        uses: hmarr/auto-merge-action@v0.0.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-method: squash
+          delete-branch: true
+```
+
+### セキュリティ強化版自動マージワークフロー
+
+```yaml
+name: Secure Auto Merge PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Security Check
+        run: |
+          # 機密ファイルのチェック
+          if git diff --name-only HEAD~1 HEAD | grep -E '\.(env|key|pem|p12)$'; then
+            echo "機密ファイルが検出されました"
+            exit 1
+          fi
+          
+      - name: Auto Merge
+        if: success()
+        uses: hmarr/auto-merge-action@v0.0.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-method: squash
+          delete-branch: true
+```
+
+### 設定ファイルテンプレート
+
+```json
+{
+  "required_reviews": 1,
+  "auto_merge_labels": "auto-merge,ready-to-merge",
+  "wip_labels": "wip,work-in-progress,draft",
+  "exclude_authors": "bot-user,automated-user",
+  "merge_method": "squash",
+  "delete_branch_after_merge": true,
+  "require_checks_to_pass": true,
+  "required_status_checks": [],
+  "auto_remove_wip_labels": true
+}
+```
