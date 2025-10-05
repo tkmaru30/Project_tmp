@@ -1,0 +1,138 @@
+name: Auto Merge Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+
+# 必要な権限を明示的に設定
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  statuses: read
+
+jobs:
+  auto-merge:
+    # 特定の条件を満たす場合のみ実行
+    if: |
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.mergeable == true &&
+      (github.event.action == 'opened' || 
+       github.event.action == 'synchronize' || 
+       github.event.action == 'reopened' ||
+       (github.event.action == 'submitted' && github.event.review.state == 'approved') ||
+       (github.event.action == 'completed' && github.event.check_suite.conclusion == 'success'))
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get PR information
+        id: pr-info
+        run: |
+          # プルリクエストの詳細を取得
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "pr_author=$PR_AUTHOR" >> $GITHUB_OUTPUT
+          
+          # プルリクエストのラベルを確認
+          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name' | tr '\n' ',' | sed 's/,$//')
+          echo "pr_labels=$LABELS" >> $GITHUB_OUTPUT
+
+      - name: Check auto-merge conditions
+        id: check-conditions
+        run: |
+          # 自動マージの条件をチェック
+          AUTO_MERGE_LABEL="auto-merge"
+          READY_TO_MERGE_LABEL="ready-to-merge"
+          
+          # ラベルをチェック
+          if echo "${{ steps.pr-info.outputs.pr_labels }}" | grep -q "$AUTO_MERGE_LABEL\|$READY_TO_MERGE_LABEL"; then
+            echo "has_auto_merge_label=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_auto_merge_label=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # レビュー状況をチェック
+          REVIEWS=$(gh pr view ${{ steps.pr-info.outputs.pr_number }} --json reviews --jq '.reviews[] | select(.state == "APPROVED") | .author.login' | sort | uniq)
+          REVIEW_COUNT=$(echo "$REVIEWS" | wc -l)
+          
+          echo "review_count=$REVIEW_COUNT" >> $GITHUB_OUTPUT
+          echo "approved_reviewers=$REVIEWS" >> $GITHUB_OUTPUT
+          
+          # 必要なレビュー数（設定可能）
+          REQUIRED_REVIEWS=${REQUIRED_REVIEWS:-1}
+          echo "required_reviews=$REQUIRED_REVIEWS" >> $GITHUB_OUTPUT
+          
+          # チェックステータスを確認
+          CHECKS=$(gh pr checks ${{ steps.pr-info.outputs.pr_number }} --json status,conclusion --jq '.[] | select(.status == "completed") | .conclusion')
+          FAILED_CHECKS=$(echo "$CHECKS" | grep -v "success" | wc -l)
+          
+          echo "failed_checks=$FAILED_CHECKS" >> $GITHUB_OUTPUT
+          
+          # 条件を満たしているかチェック
+          if [ "${{ steps.pr-info.outputs.has_auto_merge_label }}" = "true" ] && 
+             [ "$REVIEW_COUNT" -ge "$REQUIRED_REVIEWS" ] && 
+             [ "$FAILED_CHECKS" -eq 0 ]; then
+            echo "can_merge=true" >> $GITHUB_OUTPUT
+          else
+            echo "can_merge=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for checks to complete
+        if: steps.check-conditions.outputs.can_merge == 'true'
+        run: |
+          echo "Waiting for all checks to complete..."
+          gh pr checks ${{ steps.pr-info.outputs.pr_number }} --watch --exit-status
+
+      - name: Auto merge PR
+        if: steps.check-conditions.outputs.can_merge == 'true'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          
+          echo "🚀 Auto-merging PR #$PR_NUMBER"
+          echo "Title: ${{ steps.pr-info.outputs.pr_title }}"
+          echo "Author: ${{ steps.pr-info.outputs.pr_author }}"
+          echo "Approved by: ${{ steps.check-conditions.outputs.approved_reviewers }}"
+          
+          # プルリクエストをマージ
+          gh pr merge $PR_NUMBER --squash --delete-branch --subject "Auto-merge: ${{ steps.pr-info.outputs.pr_title }}"
+          
+          echo "✅ Successfully merged PR #$PR_NUMBER"
+
+      - name: Comment on PR
+        if: steps.check-conditions.outputs.can_merge == 'false'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          
+          # 条件を満たしていない場合のコメント
+          COMMENT="🤖 **Auto-merge check failed**\n\n"
+          COMMENT+="**Current status:**\n"
+          COMMENT+="- Auto-merge label: ${{ steps.check-conditions.outputs.has_auto_merge_label }}\n"
+          COMMENT+="- Reviews: ${{ steps.check-conditions.outputs.review_count }}/${{ steps.check-conditions.outputs.required_reviews }}\n"
+          COMMENT+="- Failed checks: ${{ steps.check-conditions.outputs.failed_checks }}\n\n"
+          COMMENT+="**To enable auto-merge, please:**\n"
+          COMMENT+="1. Add \`auto-merge\` or \`ready-to-merge\` label\n"
+          COMMENT+="2. Ensure all required reviews are approved\n"
+          COMMENT+="3. Make sure all checks pass\n"
+          
+          gh pr comment $PR_NUMBER --body "$COMMENT"
+
+      - name: Notify on merge
+        if: steps.check-conditions.outputs.can_merge == 'true'
+        run: |
+          echo "🎉 PR #${{ steps.pr-info.outputs.pr_number }} has been automatically merged!"
+          # ここでSlack通知やその他の通知を追加できます

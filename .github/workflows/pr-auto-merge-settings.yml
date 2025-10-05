@@ -1,0 +1,65 @@
+name: PR Auto Merge Settings
+
+on:
+  workflow_dispatch:
+    inputs:
+      required_reviews:
+        description: 'Required number of reviews'
+        required: true
+        default: '1'
+        type: string
+      auto_merge_labels:
+        description: 'Comma-separated list of auto-merge labels'
+        required: true
+        default: 'auto-merge,ready-to-merge'
+        type: string
+      exclude_authors:
+        description: 'Comma-separated list of authors to exclude from auto-merge'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  configure-auto-merge:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update workflow configuration
+        run: |
+          echo "Configuring auto-merge settings..."
+          echo "Required reviews: ${{ github.event.inputs.required_reviews }}"
+          echo "Auto-merge labels: ${{ github.event.inputs.auto_merge_labels }}"
+          echo "Excluded authors: ${{ github.event.inputs.exclude_authors }}"
+          
+          # 設定をファイルに保存（必要に応じて）
+          cat > .github/auto-merge-config.json << EOF
+          {
+            "required_reviews": ${{ github.event.inputs.required_reviews }},
+            "auto_merge_labels": "${{ github.event.inputs.auto_merge_labels }}",
+            "exclude_authors": "${{ github.event.inputs.exclude_authors }}"
+          }
+          EOF
+          
+          echo "Configuration saved to .github/auto-merge-config.json"
+
+      - name: Create configuration summary
+        run: |
+          echo "## Auto-Merge Configuration Summary" > auto-merge-summary.md
+          echo "" >> auto-merge-summary.md
+          echo "**Settings:**" >> auto-merge-summary.md
+          echo "- Required reviews: ${{ github.event.inputs.required_reviews }}" >> auto-merge-summary.md
+          echo "- Auto-merge labels: ${{ github.event.inputs.auto_merge_labels }}" >> auto-merge-summary.md
+          echo "- Excluded authors: ${{ github.event.inputs.exclude_authors }}" >> auto-merge-summary.md
+          echo "" >> auto-merge-summary.md
+          echo "**Usage:**" >> auto-merge-summary.md
+          echo "1. Add one of the specified labels to your PR" >> auto-merge-summary.md
+          echo "2. Ensure the required number of reviews are approved" >> auto-merge-summary.md
+          echo "3. Wait for all checks to pass" >> auto-merge-summary.md
+          echo "4. The PR will be automatically merged" >> auto-merge-summary.md
