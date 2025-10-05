@@ -1,0 +1,10 @@
+{
+  "required_reviews": 1,
+  "auto_merge_labels": "auto-merge,ready-to-merge",
+  "exclude_authors": "",
+  "merge_method": "squash",
+  "delete_branch_after_merge": true,
+  "require_checks_to_pass": true,
+  "require_status_checks": true,
+  "required_status_checks": []
+}

@@ -1,0 +1,292 @@
+name: Secure Auto Merge Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+
+# 最小権限の原則に従った権限設定
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  statuses: read
+  issues: read
+
+# 環境変数でセキュリティ設定
+env:
+  REQUIRED_REVIEWS: 1
+  AUTO_MERGE_LABELS: "auto-merge,ready-to-merge"
+  EXCLUDED_AUTHORS: ""
+  MERGE_METHOD: "squash"
+  DELETE_BRANCH: true
+
+jobs:
+  security-checks:
+    runs-on: ubuntu-latest
+    outputs:
+      is_secure: ${{ steps.security-check.outputs.is_secure }}
+      risk_level: ${{ steps.security-check.outputs.risk_level }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install GitHub CLI
+        run: |
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y
+
+      - name: Security validation
+        id: security-check
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          
+          echo "🔍 Running security checks for PR #$PR_NUMBER"
+          
+          # デフォルト値を設定
+          IS_SECURE=true
+          RISK_LEVEL="low"
+          
+          # 1. ブランチ名の検証
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          if [[ "$BRANCH_NAME" =~ ^(main|master|develop|production)$ ]]; then
+            echo "❌ Direct push to protected branch detected"
+            IS_SECURE=false
+            RISK_LEVEL="high"
+          else
+            echo "✅ Branch name check passed: $BRANCH_NAME"
+          fi
+          
+          # 2. ファイル変更の検証
+          if [ "$IS_SECURE" = "true" ]; then
+            echo "Checking changed files..."
+            CHANGED_FILES=$(gh pr diff $PR_NUMBER --name-only 2>/dev/null || echo "")
+            if [ -n "$CHANGED_FILES" ]; then
+              SENSITIVE_FILES=$(echo "$CHANGED_FILES" | grep -E "\.(env|key|pem|p12|pfx)$|secrets|credentials|config\.(json|yaml|yml)$" || echo "")
+              if [ -n "$SENSITIVE_FILES" ]; then
+                echo "⚠️ Sensitive files detected in changes:"
+                echo "$SENSITIVE_FILES"
+                IS_SECURE=false
+                RISK_LEVEL="medium"
+              else
+                echo "✅ File security check passed"
+              fi
+            else
+              echo "⚠️ Could not retrieve changed files, skipping file check"
+            fi
+          fi
+          
+          # 3. コミットメッセージの検証
+          if [ "$IS_SECURE" = "true" ]; then
+            echo "Checking commit messages..."
+            COMMIT_MESSAGES=$(gh pr view $PR_NUMBER --json commits --jq '.commits[].messageHeadline' 2>/dev/null || echo "")
+            if [ -n "$COMMIT_MESSAGES" ]; then
+              if echo "$COMMIT_MESSAGES" | grep -qiE "(password|secret|key|token|credential)"; then
+                echo "⚠️ Potentially sensitive information in commit messages"
+                IS_SECURE=false
+                RISK_LEVEL="medium"
+              else
+                echo "✅ Commit message check passed"
+              fi
+            else
+              echo "⚠️ Could not retrieve commit messages, skipping message check"
+            fi
+          fi
+          
+          # 4. 除外された作者のチェック
+          if [ "$IS_SECURE" = "true" ] && [ -n "${{ env.EXCLUDED_AUTHORS }}" ]; then
+            echo "Checking excluded authors..."
+            EXCLUDED_LIST=$(echo "${{ env.EXCLUDED_AUTHORS }}" | tr ',' ' ')
+            for author in $EXCLUDED_LIST; do
+              if [ "$PR_AUTHOR" = "$author" ]; then
+                echo "❌ Author $PR_AUTHOR is in excluded list"
+                IS_SECURE=false
+                RISK_LEVEL="low"
+                break
+              fi
+            done
+            if [ "$IS_SECURE" = "true" ]; then
+              echo "✅ Author check passed: $PR_AUTHOR not in excluded list"
+            fi
+          fi
+          
+          # 結果を出力
+          echo "is_secure=$IS_SECURE" >> $GITHUB_OUTPUT
+          echo "risk_level=$RISK_LEVEL" >> $GITHUB_OUTPUT
+          
+          if [ "$IS_SECURE" = "true" ]; then
+            echo "✅ All security checks passed"
+          else
+            echo "❌ Security checks failed with risk level: $RISK_LEVEL"
+          fi
+
+  auto-merge:
+    needs: security-checks
+    if: |
+      needs.security-checks.outputs.is_secure == 'true' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.mergeable == true &&
+      (github.event.action == 'opened' || 
+       github.event.action == 'synchronize' || 
+       github.event.action == 'reopened' ||
+       (github.event.action == 'submitted' && github.event.review.state == 'approved') ||
+       (github.event.action == 'completed' && github.event.check_suite.conclusion == 'success'))
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Load configuration
+        id: config
+        run: |
+          # 設定ファイルから設定を読み込み（存在する場合）
+          if [ -f ".github/auto-merge-config.json" ]; then
+            REQUIRED_REVIEWS=$(jq -r '.required_reviews // 1' .github/auto-merge-config.json)
+            AUTO_MERGE_LABELS=$(jq -r '.auto_merge_labels // "auto-merge,ready-to-merge"' .github/auto-merge-config.json)
+            MERGE_METHOD=$(jq -r '.merge_method // "squash"' .github/auto-merge-config.json)
+            DELETE_BRANCH=$(jq -r '.delete_branch_after_merge // true' .github/auto-merge-config.json)
+          else
+            REQUIRED_REVIEWS="${{ env.REQUIRED_REVIEWS }}"
+            AUTO_MERGE_LABELS="${{ env.AUTO_MERGE_LABELS }}"
+            MERGE_METHOD="${{ env.MERGE_METHOD }}"
+            DELETE_BRANCH="${{ env.DELETE_BRANCH }}"
+          fi
+          
+          echo "required_reviews=$REQUIRED_REVIEWS" >> $GITHUB_OUTPUT
+          echo "auto_merge_labels=$AUTO_MERGE_LABELS" >> $GITHUB_OUTPUT
+          echo "merge_method=$MERGE_METHOD" >> $GITHUB_OUTPUT
+          echo "delete_branch=$DELETE_BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Get PR information
+        id: pr-info
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          PR_LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name' | tr '\n' ',' | sed 's/,$//')
+          
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "pr_author=$PR_AUTHOR" >> $GITHUB_OUTPUT
+          echo "pr_labels=$PR_LABELS" >> $GITHUB_OUTPUT
+
+      - name: Validate merge conditions
+        id: validate-merge
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          REQUIRED_REVIEWS=${{ steps.config.outputs.required_reviews }}
+          AUTO_MERGE_LABELS="${{ steps.config.outputs.auto_merge_labels }}"
+          
+          # ラベルチェック
+          HAS_AUTO_MERGE_LABEL=false
+          IFS=',' read -ra LABELS <<< "$AUTO_MERGE_LABELS"
+          for label in "${LABELS[@]}"; do
+            if echo "${{ steps.pr-info.outputs.pr_labels }}" | grep -q "$label"; then
+              HAS_AUTO_MERGE_LABEL=true
+              break
+            fi
+          done
+          
+          echo "has_auto_merge_label=$HAS_AUTO_MERGE_LABEL" >> $GITHUB_OUTPUT
+          
+          # レビューチェック
+          REVIEWS=$(gh pr view $PR_NUMBER --json reviews --jq '.reviews[] | select(.state == "APPROVED") | .author.login' | sort | uniq)
+          REVIEW_COUNT=$(echo "$REVIEWS" | wc -l)
+          
+          echo "review_count=$REVIEW_COUNT" >> $GITHUB_OUTPUT
+          echo "approved_reviewers=$REVIEWS" >> $GITHUB_OUTPUT
+          
+          # チェックステータス
+          CHECKS=$(gh pr checks $PR_NUMBER --json status,conclusion --jq '.[] | select(.status == "completed") | .conclusion')
+          FAILED_CHECKS=$(echo "$CHECKS" | grep -v "success" | wc -l)
+          
+          echo "failed_checks=$FAILED_CHECKS" >> $GITHUB_OUTPUT
+          
+          # 最終判定
+          if [ "$HAS_AUTO_MERGE_LABEL" = "true" ] && 
+             [ "$REVIEW_COUNT" -ge "$REQUIRED_REVIEWS" ] && 
+             [ "$FAILED_CHECKS" -eq 0 ]; then
+            echo "can_merge=true" >> $GITHUB_OUTPUT
+          else
+            echo "can_merge=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for all checks
+        if: steps.validate-merge.outputs.can_merge == 'true'
+        run: |
+          echo "⏳ Waiting for all checks to complete..."
+          gh pr checks ${{ steps.pr-info.outputs.pr_number }} --watch --exit-status
+
+      - name: Merge PR
+        if: steps.validate-merge.outputs.can_merge == 'true'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          MERGE_METHOD="${{ steps.config.outputs.merge_method }}"
+          DELETE_BRANCH="${{ steps.config.outputs.delete_branch }}"
+          
+          echo "🚀 Auto-merging PR #$PR_NUMBER"
+          echo "Title: ${{ steps.pr-info.outputs.pr_title }}"
+          echo "Author: ${{ steps.pr-info.outputs.pr_author }}"
+          echo "Approved by: ${{ steps.validate-merge.outputs.approved_reviewers }}"
+          echo "Merge method: $MERGE_METHOD"
+          echo "Delete branch: $DELETE_BRANCH"
+          
+          # マージ実行
+          if [ "$DELETE_BRANCH" = "true" ]; then
+            gh pr merge $PR_NUMBER --$MERGE_METHOD --delete-branch --subject "Auto-merge: ${{ steps.pr-info.outputs.pr_title }}"
+          else
+            gh pr merge $PR_NUMBER --$MERGE_METHOD --subject "Auto-merge: ${{ steps.pr-info.outputs.pr_title }}"
+          fi
+          
+          echo "✅ Successfully merged PR #$PR_NUMBER"
+
+      - name: Create merge notification
+        if: steps.validate-merge.outputs.can_merge == 'true'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          
+          NOTIFICATION="🎉 **PR #$PR_NUMBER has been automatically merged!**\n\n"
+          NOTIFICATION+="**Details:**\n"
+          NOTIFICATION+="- Title: ${{ steps.pr-info.outputs.pr_title }}\n"
+          NOTIFICATION+="- Author: ${{ steps.pr-info.outputs.pr_author }}\n"
+          NOTIFICATION+="- Approved by: ${{ steps.validate-merge.outputs.approved_reviewers }}\n"
+          NOTIFICATION+="- Merge method: ${{ steps.config.outputs.merge_method }}\n"
+          NOTIFICATION+="- Security level: ${{ needs.security-checks.outputs.risk_level }}\n\n"
+          NOTIFICATION+="Thank you for your contribution! 🙏"
+          
+          gh pr comment $PR_NUMBER --body "$NOTIFICATION"
+
+      - name: Report merge failure
+        if: steps.validate-merge.outputs.can_merge == 'false'
+        run: |
+          PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}
+          
+          REPORT="🤖 **Auto-merge check failed**\n\n"
+          REPORT+="**Current status:**\n"
+          REPORT+="- Auto-merge label: ${{ steps.validate-merge.outputs.has_auto_merge_label }}\n"
+          REPORT+="- Reviews: ${{ steps.validate-merge.outputs.review_count }}/${{ steps.config.outputs.required_reviews }}\n"
+          REPORT+="- Failed checks: ${{ steps.validate-merge.outputs.failed_checks }}\n"
+          REPORT+="- Security check: ${{ needs.security-checks.outputs.is_secure }}\n\n"
+          REPORT+="**To enable auto-merge:**\n"
+          REPORT+="1. Add one of these labels: ${{ steps.config.outputs.auto_merge_labels }}\n"
+          REPORT+="2. Get ${{ steps.config.outputs.required_reviews }} approved review(s)\n"
+          REPORT+="3. Ensure all checks pass\n"
+          REPORT+="4. Verify security requirements are met\n"
+          
+          gh pr comment $PR_NUMBER --body "$REPORT"
