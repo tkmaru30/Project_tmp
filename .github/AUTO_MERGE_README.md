@@ -4,8 +4,9 @@
 
 ## 📁 ファイル構成
 
-- `auto-merge-pr.yml` - 基本的な自動マージワークフロー
-- `secure-auto-merge-pr.yml` - セキュリティ強化版の自動マージワークフロー
+- `auto-merge-pr.yml` - 基本的な自動マージワークフロー（修正済み）
+- `secure-auto-merge-pr.yml` - セキュリティ強化版の自動マージワークフロー（修正済み）
+- `simple-auto-merge-pr.yml` - シンプルで堅牢な自動マージワークフロー（新規）
 - `pr-auto-merge-settings.yml` - 設定管理用ワークフロー
 - `auto-merge-config.json` - 自動マージの設定ファイル
 
@@ -63,19 +64,27 @@
 
 ## 📋 ワークフローの種類
 
-### 1. auto-merge-pr.yml
+### 1. auto-merge-pr.yml（修正済み）
 - 基本的な自動マージ機能
 - ラベルベースのトリガー
 - レビュー要求の確認
 - チェックステータスの確認
+- エラーハンドリング強化
 
-### 2. secure-auto-merge-pr.yml
+### 2. secure-auto-merge-pr.yml（修正済み）
 - セキュリティ強化版
 - ファイル変更の検証
 - ブランチ保護の確認
 - リスクレベルの評価
+- GitHub CLIの自動インストール
 
-### 3. pr-auto-merge-settings.yml
+### 3. simple-auto-merge-pr.yml（新規）
+- シンプルで堅牢な設計
+- 最小限の依存関係
+- エラー耐性の向上
+- デバッグ情報の充実
+
+### 4. pr-auto-merge-settings.yml
 - 設定管理用
 - 手動での設定変更
 - 設定の確認と更新
@@ -135,3 +144,8 @@ GitHub Actionsのログで詳細な実行状況を確認できます：
 - v1.0.0: 基本的な自動マージ機能を実装
 - v1.1.0: セキュリティ機能を追加
 - v1.2.0: 設定管理機能を追加
+- v1.3.0: セキュリティバリデーションのエラーを修正
+  - GitHub CLIの自動インストールを追加
+  - エラーハンドリングを強化
+  - デバッグ情報を充実
+  - シンプル版ワークフローを追加
