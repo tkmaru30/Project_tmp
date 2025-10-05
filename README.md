@@ -295,6 +295,25 @@ Slackから自然言語で指示するだけで、タスク管理・アイデア
 - **議事録 → タスク**: アクションアイテムを自動でタスク化
 - **メモ → アイデア/タスク**: メモ内容に応じて適切な形式に変換
 
+### GitHub Actions 自動マージ
+このプロジェクトでは、GitHub Actionsを使用してプルリクエストの自動マージ機能を実装しています。
+
+#### 主な機能
+- **ラベルベースの自動マージ**: `auto-merge`または`ready-to-merge`ラベルで自動マージをトリガー
+- **レビュー要求の確認**: 必要なレビュー数が満たされているかを自動チェック
+- **ステータスチェックの確認**: すべてのCI/CDチェックが成功しているかを確認
+- **セキュリティ機能**: 機密ファイルの変更検出やブランチ保護の確認
+- **WIP（作業中）対応**: 作業完了時の自動マージとラベル管理
+
+#### 使用方法
+1. プルリクエストを作成
+2. 自動マージ用ラベル（`auto-merge`または`ready-to-merge`）を追加
+3. 必要なレビューを取得
+4. すべてのチェックが成功するのを待つ
+5. 自動的にマージされる
+
+詳細な設定と使用方法については、[📁 .github/AUTO_MERGE_README.md](./.github/AUTO_MERGE_README.md)を参照してください。
+
 ### 定期自動実行
 ```
 # 日次実行（毎朝9:00）
@@ -359,6 +378,7 @@ Slackから自然言語で指示するだけで、タスク管理・アイデア
 - [📁 02_apps/README.md](./02_apps/README.md) - Webアプリ開発ガイド
 - [📁 02_apps/01_janken-game/README.md](./02_apps/01_janken-game/README.md) - じゃんけんゲーム詳細
 - [📁 02_apps/02_amidakuji-game/README.md](./02_apps/02_amidakuji-game/README.md) - あみだくじゲーム詳細
+- [📁 .github/AUTO_MERGE_README.md](./.github/AUTO_MERGE_README.md) - GitHub Actions自動マージ詳細設定
 - [📁 09_other/slack-integration/README.md](./09_other/slack-integration/README.md) - Slack連携詳細
 
 ## 🆘 サポート & トラブルシューティング
