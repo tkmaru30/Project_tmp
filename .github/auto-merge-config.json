@@ -1,10 +1,12 @@
 {
   "required_reviews": 1,
   "auto_merge_labels": "auto-merge,ready-to-merge",
+  "wip_labels": "wip,work-in-progress,draft",
   "exclude_authors": "",
   "merge_method": "squash",
   "delete_branch_after_merge": true,
   "require_checks_to_pass": true,
   "require_status_checks": true,
-  "required_status_checks": []
+  "required_status_checks": [],
+  "auto_remove_wip_labels": true
 }
