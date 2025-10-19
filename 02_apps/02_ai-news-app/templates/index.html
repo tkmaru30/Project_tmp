@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI最新ニュース - News Aggregator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease;
+        }
+
+        .btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            animation: fadeIn 1s ease;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            animation: slideUp 0.5s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .news-source {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .news-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .news-title a:hover {
+            color: #667eea;
+        }
+
+        .news-summary {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #718096;
+            font-size: 0.85rem;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .news-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .read-more {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover {
+            color: #764ba2;
+        }
+
+        .error {
+            background: white;
+            color: #e53e3e;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI最新ニュース</h1>
+            <p class="subtitle">世界中から集めたAI関連の最新情報をお届けします</p>
+        </header>
+
+        <div class="controls">
+            <button class="btn" onclick="loadNews()">🔄 更新</button>
+        </div>
+
+        <div id="stats" class="stats" style="display: none;">
+            <span id="news-count">0</span> 件のニュースを表示中
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>ニュースを読み込み中...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="news-container" class="news-grid"></div>
+    </div>
+
+    <script>
+        async function loadNews() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const newsContainer = document.getElementById('news-container');
+            const statsEl = document.getElementById('stats');
+            const newsCountEl = document.getElementById('news-count');
+
+            // 表示をリセット
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            newsContainer.innerHTML = '';
+            statsEl.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/news');
+                const data = await response.json();
+
+                loadingEl.style.display = 'none';
+
+                if (data.success) {
+                    if (data.news.length === 0) {
+                        errorEl.textContent = 'ニュースが見つかりませんでした';
+                        errorEl.style.display = 'block';
+                        return;
+                    }
+
+                    // 統計を表示
+                    newsCountEl.textContent = data.count;
+                    statsEl.style.display = 'block';
+
+                    // ニュースカードを作成
+                    data.news.forEach((item, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'news-card';
+                        card.style.animationDelay = `${index * 0.05}s`;
+                        
+                        card.innerHTML = `
+                            <div class="news-source">${escapeHtml(item.source)}</div>
+                            <h2 class="news-title">
+                                <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">
+                                    ${escapeHtml(item.title)}
+                                </a>
+                            </h2>
+                            ${item.summary ? `<p class="news-summary">${escapeHtml(item.summary)}</p>` : ''}
+                            <div class="news-meta">
+                                <span class="news-date">📅 ${escapeHtml(item.published)}</span>
+                                <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="read-more">
+                                    続きを読む →
+                                </a>
+                            </div>
+                        `;
+                        
+                        newsContainer.appendChild(card);
+                    });
+                } else {
+                    throw new Error(data.error || 'ニュースの取得に失敗しました');
+                }
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                errorEl.textContent = `エラー: ${error.message}`;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ページ読み込み時にニュースを取得
+        window.addEventListener('load', loadNews);
+    </script>
+</body>
+</html>
