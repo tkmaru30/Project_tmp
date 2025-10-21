@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>体重減量トレーニング提案アプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h2 {
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .goal-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .goal-info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .training-section {
+            margin-top: 20px;
+        }
+
+        .training-section h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .training-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid white;
+        }
+
+        .training-item h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .training-item p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .tips {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .tips h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .tips ul {
+            margin-left: 20px;
+        }
+
+        .tips li {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💪 体重減量トレーニング提案</h1>
+        <p class="subtitle">あなたの目標に合わせた最適なトレーニングプランを提案します</p>
+
+        <div class="input-group">
+            <label for="currentWeight">現在の体重 (kg)</label>
+            <input type="number" id="currentWeight" placeholder="例: 70" min="30" max="200" step="0.1">
+            <span class="error" id="currentWeightError">体重を入力してください</span>
+        </div>
+
+        <div class="input-group">
+            <label for="targetWeight">目標体重 (kg)</label>
+            <input type="number" id="targetWeight" placeholder="例: 65" min="30" max="200" step="0.1">
+            <span class="error" id="targetWeightError">目標体重を入力してください</span>
+        </div>
+
+        <div class="input-group">
+            <label for="targetPeriod">目標期間 (週間)</label>
+            <input type="number" id="targetPeriod" placeholder="例: 12" min="1" max="52" value="12">
+            <span class="error" id="targetPeriodError">期間を入力してください</span>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-calculate" onclick="calculateTraining()">トレーニングプランを作成</button>
+            <button class="btn-reset" onclick="resetForm()">リセット</button>
+        </div>
+
+        <div class="result" id="result">
+            <h2>🎯 あなた専用トレーニングプラン</h2>
+            <div class="goal-info" id="goalInfo"></div>
+            <div class="training-section" id="trainingPlan"></div>
+            <div class="tips" id="tips"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculateTraining() {
+            // 入力値を取得
+            const currentWeight = parseFloat(document.getElementById('currentWeight').value);
+            const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+            const targetPeriod = parseInt(document.getElementById('targetPeriod').value);
+
+            // エラーをリセット
+            document.querySelectorAll('.error').forEach(e => e.classList.remove('show'));
+
+            // バリデーション
+            let hasError = false;
+
+            if (!currentWeight || currentWeight < 30 || currentWeight > 200) {
+                document.getElementById('currentWeightError').classList.add('show');
+                hasError = true;
+            }
+
+            if (!targetWeight || targetWeight < 30 || targetWeight > 200) {
+                document.getElementById('targetWeightError').classList.add('show');
+                hasError = true;
+            }
+
+            if (!targetPeriod || targetPeriod < 1 || targetPeriod > 52) {
+                document.getElementById('targetPeriodError').classList.add('show');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            if (targetWeight >= currentWeight) {
+                alert('目標体重は現在の体重より低く設定してください');
+                return;
+            }
+
+            // 減量目標を計算
+            const weightLoss = currentWeight - targetWeight;
+            const weeklyLoss = weightLoss / targetPeriod;
+
+            // 目標情報を表示
+            const goalInfo = document.getElementById('goalInfo');
+            goalInfo.innerHTML = `
+                <p><strong>減量目標:</strong> ${weightLoss.toFixed(1)} kg</p>
+                <p><strong>期間:</strong> ${targetPeriod} 週間</p>
+                <p><strong>週あたりの減量:</strong> ${weeklyLoss.toFixed(2)} kg</p>
+            `;
+
+            // トレーニングプランを生成
+            const trainingPlan = getTrainingPlan(weightLoss, weeklyLoss);
+            document.getElementById('trainingPlan').innerHTML = trainingPlan;
+
+            // アドバイスを生成
+            const tips = getTips(weightLoss, weeklyLoss);
+            document.getElementById('tips').innerHTML = tips;
+
+            // 結果を表示
+            document.getElementById('result').classList.add('show');
+        }
+
+        function getTrainingPlan(weightLoss, weeklyLoss) {
+            let intensity = '';
+            let plan = '<h3>📋 推奨トレーニングメニュー</h3>';
+
+            if (weeklyLoss > 1.0) {
+                intensity = '高強度';
+                plan += `
+                    <div class="training-item">
+                        <h4>🏃 有酸素運動 (週6日)</h4>
+                        <p>ランニング: 40-60分/日、またはサイクリング: 60-90分/日</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>💪 筋力トレーニング (週4-5回)</h4>
+                        <p>全身トレーニング: スクワット、腕立て伏せ、プランク各3セット × 15-20回</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>🔥 HIIT (週3回)</h4>
+                        <p>高強度インターバルトレーニング: 20-30分、バーピー、マウンテンクライマーなど</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>🧘 ストレッチ・ヨガ (毎日)</h4>
+                        <p>リカバリーとケガ予防: 15-20分</p>
+                    </div>
+                `;
+            } else if (weeklyLoss > 0.5) {
+                intensity = '中強度';
+                plan += `
+                    <div class="training-item">
+                        <h4>🚶 有酸素運動 (週4-5日)</h4>
+                        <p>ジョギング: 30-45分/日、または水泳: 30-45分/日</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>💪 筋力トレーニング (週3回)</h4>
+                        <p>上半身・下半身交互: スクワット、ランジ、ダンベルプレス各3セット × 12-15回</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>🚴 サーキットトレーニング (週2回)</h4>
+                        <p>複数の運動を組み合わせて: 30-40分</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>🧘 ストレッチ (週5日)</h4>
+                        <p>柔軟性向上: 10-15分</p>
+                    </div>
+                `;
+            } else {
+                intensity = '低～中強度';
+                plan += `
+                    <div class="training-item">
+                        <h4>🚶 ウォーキング (週5日)</h4>
+                        <p>速歩: 30-40分/日、または軽いジョギング: 20-30分/日</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>💪 筋力トレーニング (週2-3回)</h4>
+                        <p>基本メニュー: スクワット、腕立て伏せ、プランク各2-3セット × 10-12回</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>🏊 水中運動 (週2回)</h4>
+                        <p>関節に優しい: 水中ウォーキングまたは水泳 30分</p>
+                    </div>
+                    <div class="training-item">
+                        <h4>🧘 ヨガ・ピラティス (週2-3回)</h4>
+                        <p>体幹強化とリラックス: 30-40分</p>
+                    </div>
+                `;
+            }
+
+            return plan;
+        }
+
+        function getTips(weightLoss, weeklyLoss) {
+            let tips = '<h3>💡 成功のためのアドバイス</h3><ul>';
+
+            if (weeklyLoss > 1.0) {
+                tips += `
+                    <li>⚠️ 週1kg以上の減量は体への負担が大きいため、必ず専門家に相談してください</li>
+                    <li>🥗 食事制限と運動のバランスを取り、栄養不足に注意しましょう</li>
+                    <li>💤 十分な睡眠（7-8時間）で回復を心がけてください</li>
+                    <li>💧 水分補給をこまめに（1日2-3リットル）</li>
+                `;
+            } else if (weeklyLoss > 0.5) {
+                tips += `
+                    <li>✅ 理想的なペースです。継続することが大切です</li>
+                    <li>🍽️ バランスの良い食事を心がけましょう</li>
+                    <li>📊 週1回の体重測定で進捗を確認しましょう</li>
+                    <li>🎯 小さな目標を設定してモチベーションを維持しましょう</li>
+                `;
+            } else {
+                tips += `
+                    <li>🌟 無理のないペースで健康的に減量できます</li>
+                    <li>🍎 食事は腹八分目を意識しましょう</li>
+                    <li>🚶 日常生活でも階段を使うなど活動量を増やしましょう</li>
+                    <li>😊 ストレスをためずに楽しんで続けましょう</li>
+                `;
+            }
+
+            tips += `
+                <li>📝 トレーニング日誌をつけて記録しましょう</li>
+                <li>👥 家族や友人と一緒に取り組むと続けやすくなります</li>
+            </ul>`;
+
+            return tips;
+        }
+
+        function resetForm() {
+            document.getElementById('currentWeight').value = '';
+            document.getElementById('targetWeight').value = '';
+            document.getElementById('targetPeriod').value = '12';
+            document.getElementById('result').classList.remove('show');
+            document.querySelectorAll('.error').forEach(e => e.classList.remove('show'));
+        }
+    </script>
+</body>
+</html>
